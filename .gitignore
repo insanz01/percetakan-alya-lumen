@@ -1,0 +1,54 @@
+# Environment
+.env
+
+# Vendor
+/vendor
+
+# IDE
+/.idea
+/.vscode
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Cache
+/.phpunit.cache
+/bootstrap/cache/*
+!/bootstrap/cache/.gitkeep
+
+# Storage (keep structure, ignore contents)
+/storage/*.key
+/storage/app/*
+!/storage/app/.gitkeep
+!/storage/app/public
+/storage/app/public/*
+!/storage/app/public/.gitkeep
+/storage/framework/cache/*
+!/storage/framework/cache/.gitkeep
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# SQLite journal (temporary file, but keep database)
+/database/*.sqlite-journal
+
+# PHPUnit
+.phpunit.result.cache
+phpunit.xml
+
+# Composer
+composer.phar
+
+# Misc
+*.bak
+*.swp
+*~
