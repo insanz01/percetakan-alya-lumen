@@ -115,6 +115,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
         // Dashboard
         $router->get('/dashboard/stats', 'OrderController@statistics');
         $router->get('/dashboard/customers', 'UserController@statistics');
+        $router->get('/dashboard/recent-orders', 'OrderController@recentOrders');
+        $router->get('/dashboard/popular-products', 'ProductController@popularProducts');
 
         // Categories Management
         $router->post('/categories', 'CategoryController@store');
@@ -167,6 +169,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
         // Files Management
         $router->get('/files', 'FileUploadController@forRelated');
+
+        // Image Upload Management
+        $router->post('/images/upload', 'ImageUploadController@uploadImage');
+        $router->post('/products/{id}/images', 'ImageUploadController@uploadProductImage');
+        $router->delete('/products/{id}/images', 'ImageUploadController@deleteProductImage');
+        $router->post('/categories/{id}/image', 'ImageUploadController@uploadCategoryImage');
+        $router->delete('/categories/{id}/image', 'ImageUploadController@deleteCategoryImage');
 
     });
 

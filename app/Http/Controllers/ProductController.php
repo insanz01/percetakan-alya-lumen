@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -228,5 +230,67 @@ class ProductController extends Controller
             'products' => $products,
             'total' => $products->count()
         ]);
+    }
+
+    /**
+     * Get popular products with sales statistics
+     */
+    public function popularProducts(Request $request)
+    {
+        $limit = $request->input('limit', 5);
+
+        // Get product sales count from order_items
+        $productSales = OrderItem::select('product_id', DB::raw('COUNT(*) as order_count'), DB::raw('SUM(quantity) as total_sold'))
+            ->groupBy('product_id')
+            ->orderBy('total_sold', 'desc')
+            ->limit($limit)
+            ->get()
+            ->keyBy('product_id');
+
+        if ($productSales->isEmpty()) {
+            // Fallback: get best seller products if no orders yet
+            $products = Product::with('category')
+                ->where('is_active', true)
+                ->where('is_best_seller', true)
+                ->limit($limit)
+                ->get()
+                ->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'image' => $product->images[0] ?? null,
+                        'base_price' => $product->base_price,
+                        'category' => $product->category ? $product->category->name : null,
+                        'sales_count' => 0,
+                        'total_sold' => 0,
+                    ];
+                });
+
+            return $this->successResponse($products);
+        }
+
+        // Get products with sales data
+        $productIds = $productSales->keys()->toArray();
+        $products = Product::with('category')
+            ->whereIn('id', $productIds)
+            ->get()
+            ->map(function ($product) use ($productSales) {
+                $sales = $productSales->get($product->id);
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'slug' => $product->slug,
+                    'image' => $product->images[0] ?? null,
+                    'base_price' => $product->base_price,
+                    'category' => $product->category ? $product->category->name : null,
+                    'sales_count' => $sales ? $sales->order_count : 0,
+                    'total_sold' => $sales ? $sales->total_sold : 0,
+                ];
+            })
+            ->sortByDesc('total_sold')
+            ->values();
+
+        return $this->successResponse($products);
     }
 }

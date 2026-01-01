@@ -258,4 +258,35 @@ class OrderController extends Controller
 
         return $this->successResponse($stats);
     }
+
+    /**
+     * Get recent orders for dashboard
+     */
+    public function recentOrders(Request $request)
+    {
+        $limit = $request->input('limit', 10);
+
+        $orders = Order::with(['user', 'items.product'])
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->map(function ($order) {
+                $firstItem = $order->items->first();
+                return [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'customer' => $order->user ? $order->user->name : 'Guest',
+                    'customer_email' => $order->user ? $order->user->email : null,
+                    'product' => $firstItem ? $firstItem->product->name : 'N/A',
+                    'items_count' => $order->items->count(),
+                    'quantity' => $order->items->sum('quantity'),
+                    'total_amount' => $order->total_amount,
+                    'status' => $order->status,
+                    'payment_status' => $order->payment_status,
+                    'created_at' => $order->created_at,
+                ];
+            });
+
+        return $this->successResponse($orders);
+    }
 }
