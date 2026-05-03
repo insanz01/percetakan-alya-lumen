@@ -306,6 +306,42 @@ class ProductSeeder extends Seeder
             ]);
         }
 
+            Product::create([
+                'category_id' => $banner->id,
+                'name' => 'Spanduk Indoor',
+                'slug' => 'spanduk-indoor',
+                'description' => 'Spanduk indoor dengan bahan premium untuk tampilan di dalam ruangan. Warna cetak tajam dan tahan lama, cocok untuk dekorasi toko, pameran dalam ruangan, dan backdrop acara.',
+                'short_description' => 'Spanduk indoor berkualitas untuk dekorasi dalam ruangan',
+                'images' => ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600'],
+                'base_price' => 20000,
+                'sizes' => [
+                    ['id' => 'size-per-m2', 'name' => 'Per m²', 'dimensions' => 'Harga per meter persegi', 'priceMultiplier' => 1],
+                ],
+                'materials' => [
+                    ['id' => 'mat-albatros', 'name' => 'Albatros', 'weight' => '280gsm', 'pricePerUnit' => 0, 'description' => 'Material standar indoor'],
+                    ['id' => 'mat-canvas', 'name' => 'Canvas', 'weight' => '380gsm', 'pricePerUnit' => 20000, 'description' => 'Tampilan premium'],
+                ],
+                'print_sides' => [
+                    ['id' => 'side-1', 'name' => '1 Sisi', 'code' => '4/0', 'priceMultiplier' => 1],
+                ],
+                'finishings' => [
+                    ['id' => 'fin-jahit-pinggir', 'name' => 'Jahit Pinggir', 'type' => 'other', 'price' => 8000, 'description' => 'Per meter'],
+                ],
+                'quantity_tiers' => [
+                    ['minQty' => 1, 'maxQty' => 9, 'pricePerUnit' => 45000],
+                    ['minQty' => 10, 'maxQty' => 49, 'pricePerUnit' => 38000],
+                    ['minQty' => 50, 'maxQty' => 99999, 'pricePerUnit' => 30000],
+                ],
+                'is_best_seller' => true,
+                'min_order_qty' => 1,
+                'estimated_days' => 2,
+                'weight_per_piece' => 400,
+                'allowed_file_types' => ['pdf', 'ai', 'psd', 'cdr', 'jpg', 'png'],
+                'max_file_size' => 100,
+                'is_active' => true,
+            ]);
+        }
+
         // ==================== STIKER ====================
         if ($stiker) {
             Product::create([

@@ -83,6 +83,13 @@ class CategorySeeder extends Seeder
                 'description' => 'Alat tulis kantor branded, kop surat, amplop, dan perlengkapan kantor custom.',
                 'image' => 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600',
             ],
+            [
+                'name' => 'Konveksi Kaos',
+                'slug' => 'konveksi-kaos',
+                'icon' => '👕',
+                'description' => 'Cetak kaos, polo shirt, dan produk konveksi berkualitas. Tersedia berbagai pilihan bahan dan teknik sablon atau DTF printing.',
+                'image' => 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600',
+            ],
         ];
 
         foreach ($categories as $index => $cat) {
