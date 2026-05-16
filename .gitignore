@@ -50,5 +50,6 @@ composer.phar
 
 # Misc
 *.bak
+!.env.bak
 *.swp
 *~
