@@ -10,19 +10,19 @@ class ShippingAddress extends Model
     use HasUuids;
 
     protected $fillable = [
-        'user_id',
+        'pengguna_id',
         'label',
-        'recipient_name',
-        'phone',
-        'address',
-        'city',
-        'province',
-        'postal_code',
-        'is_default',
+        'nama_penerima',
+        'telepon',
+        'alamat',
+        'kota',
+        'provinsi',
+        'kode_pos',
+        'utama',
     ];
 
     protected $casts = [
-        'is_default' => 'boolean',
+        'utama' => 'boolean',
     ];
 
     public function user()

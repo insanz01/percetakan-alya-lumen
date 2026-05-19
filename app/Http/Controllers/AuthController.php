@@ -16,19 +16,19 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'phone' => 'nullable|string',
+            'telepon' => 'nullable|string',
         ]);
 
         $user = User::create([
-            'name' => $request->input('name'),
+            'nama' => $request->input('nama'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
-            'phone' => $request->input('phone'),
-            'role' => 'customer',
-            'is_active' => true,
+            'telepon' => $request->input('telepon'),
+            'peran' => 'customer',
+            'aktif' => true,
         ]);
 
         $token = $this->generateToken($user);
@@ -55,7 +55,7 @@ class AuthController extends Controller
             return $this->errorResponse('Email atau password salah', 401);
         }
 
-        if (!$user->is_active) {
+        if (!$user->aktif) {
             return $this->errorResponse('Akun Anda tidak aktif', 403);
         }
 
@@ -87,7 +87,7 @@ class AuthController extends Controller
             return $this->errorResponse('Anda tidak memiliki akses admin', 403);
         }
 
-        if (!$user->is_active) {
+        if (!$user->aktif) {
             return $this->errorResponse('Akun Anda tidak aktif', 403);
         }
 
@@ -125,12 +125,12 @@ class AuthController extends Controller
         }
 
         $this->validate($request, [
-            'name' => 'sometimes|required|string|max:255',
-            'phone' => 'nullable|string',
+            'nama' => 'sometimes|required|string|max:255',
+            'telepon' => 'nullable|string',
             'avatar' => 'nullable|string',
         ]);
 
-        $user->update($request->only(['name', 'phone', 'avatar']));
+        $user->update($request->only(['nama', 'telepon', 'avatar']));
 
         return $this->successResponse($user, 'Profil berhasil diupdate');
     }
@@ -182,7 +182,7 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'email' => $user->email,
-                'role' => $user->role,
+                'peran' => $user->peran,
             ]
         ];
 

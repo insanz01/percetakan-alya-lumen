@@ -24,11 +24,11 @@ class SettingController extends Controller
             'store_address',
         ];
 
-        $settings = Setting::whereIn('key', $publicKeys)->get();
+        $settings = Setting::whereIn('kunci', $publicKeys)->get();
 
         $result = [];
         foreach ($settings as $setting) {
-            $result[$setting->key] = Setting::getValue($setting->key);
+            $result[$setting->kunci] = Setting::getValue($setting->kunci);
         }
 
         return $this->success($result);
@@ -39,15 +39,15 @@ class SettingController extends Controller
      */
     public function index(): JsonResponse
     {
-        $settings = Setting::all()->groupBy('group');
+        $settings = Setting::all()->groupBy('grup');
 
         $result = [];
         foreach ($settings as $group => $groupSettings) {
             $result[$group] = [];
             foreach ($groupSettings as $setting) {
-                $result[$group][$setting->key] = [
-                    'value' => Setting::getValue($setting->key),
-                    'type' => $setting->type,
+                $result[$group][$setting->kunci] = [
+                    'nilai' => Setting::getValue($setting->kunci),
+                    'tipe' => $setting->tipe,
                 ];
             }
         }
@@ -69,17 +69,17 @@ class SettingController extends Controller
      */
     public function show(string $key): JsonResponse
     {
-        $setting = Setting::where('key', $key)->first();
+        $setting = Setting::where('kunci', $key)->first();
 
         if (!$setting) {
             return $this->error('Setting not found', 404);
         }
 
         return $this->success([
-            'key' => $setting->key,
-            'value' => Setting::getValue($key),
-            'type' => $setting->type,
-            'group' => $setting->group,
+            'kunci' => $setting->kunci,
+            'nilai' => Setting::getValue($key),
+            'tipe' => $setting->tipe,
+            'grup' => $setting->grup,
         ]);
     }
 
@@ -90,23 +90,23 @@ class SettingController extends Controller
     {
         $this->validate($request, [
             'settings' => 'required|array',
-            'settings.*.key' => 'required|string',
-            'settings.*.value' => 'present',
+            'settings.*.kunci' => 'required|string',
+            'settings.*.nilai' => 'present',
         ]);
 
         $updated = [];
 
         foreach ($request->input('settings') as $item) {
-            $setting = Setting::where('key', $item['key'])->first();
+            $setting = Setting::where('kunci', $item['kunci'])->first();
 
             if ($setting) {
                 Setting::setValue(
-                    $item['key'],
-                    $item['value'],
-                    $setting->type,
-                    $setting->group
+                    $item['kunci'],
+                    $item['nilai'],
+                    $setting->tipe,
+                    $setting->grup
                 );
-                $updated[] = $item['key'];
+                $updated[] = $item['kunci'];
             }
         }
 
@@ -122,20 +122,20 @@ class SettingController extends Controller
     public function updateSingle(Request $request, string $key): JsonResponse
     {
         $this->validate($request, [
-            'value' => 'present',
+            'nilai' => 'present',
         ]);
 
-        $setting = Setting::where('key', $key)->first();
+        $setting = Setting::where('kunci', $key)->first();
 
         if (!$setting) {
             return $this->error('Setting not found', 404);
         }
 
-        Setting::setValue($key, $request->input('value'), $setting->type, $setting->group);
+        Setting::setValue($key, $request->input('nilai'), $setting->tipe, $setting->grup);
 
         return $this->success([
-            'key' => $key,
-            'value' => Setting::getValue($key),
+            'kunci' => $key,
+            'nilai' => Setting::getValue($key),
         ], 'Setting updated successfully');
     }
 }

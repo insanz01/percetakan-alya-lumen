@@ -11,24 +11,24 @@ class UploadedFile extends Model
     use HasUuids;
 
     protected $fillable = [
-        'user_id',
-        'original_name',
-        'stored_name',
-        'path',
+        'pengguna_id',
+        'nama_asli',
+        'nama_disimpan',
+        'jalur',
         'disk',
-        'mime_type',
-        'size',
-        'type',
-        'related_id',
-        'related_type',
+        'tipe_mime',
+        'ukuran',
+        'tipe',
+        'terkait_id',
+        'terkait_tipe',
     ];
 
     protected $casts = [
-        'size' => 'integer',
+        'ukuran' => 'integer',
     ];
 
     /**
-     * Get the user who uploaded the file
+     * Ambil pengguna yang mengunggah file
      */
     public function user(): BelongsTo
     {
@@ -36,7 +36,7 @@ class UploadedFile extends Model
     }
 
     /**
-     * Get the related model (polymorphic)
+     * Ambil model terkait (polimorfik)
      */
     public function related()
     {
@@ -44,23 +44,23 @@ class UploadedFile extends Model
     }
 
     /**
-     * Get file URL
+     * Ambil URL file
      */
     public function getUrlAttribute(): string
     {
         if ($this->disk === 'public') {
-            return url('storage/' . $this->path);
+            return url('storage/' . $this->jalur);
         }
 
         return url('api/v1/files/' . $this->id);
     }
 
     /**
-     * Get human readable file size
+     * Ambil ukuran file dalam format yang dapat dibaca
      */
     public function getHumanSizeAttribute(): string
     {
-        $bytes = $this->size;
+        $bytes = $this->ukuran;
 
         if ($bytes >= 1073741824) {
             return number_format($bytes / 1073741824, 2) . ' GB';
@@ -74,35 +74,35 @@ class UploadedFile extends Model
     }
 
     /**
-     * Check if file is an image
+     * Periksa apakah file adalah gambar
      */
     public function isImage(): bool
     {
-        return str_starts_with($this->mime_type, 'image/');
+        return str_starts_with($this->tipe_mime, 'image/');
     }
 
     /**
-     * Check if file is a PDF
+     * Periksa apakah file adalah PDF
      */
     public function isPdf(): bool
     {
-        return $this->mime_type === 'application/pdf';
+        return $this->tipe_mime === 'application/pdf';
     }
 
     /**
-     * Scope by type
+     * Cakupan berdasarkan tipe
      */
     public function scopeOfType($query, string $type)
     {
-        return $query->where('type', $type);
+        return $query->where('tipe', $type);
     }
 
     /**
-     * Scope by related
+     * Cakupan berdasarkan terkait
      */
     public function scopeForRelated($query, string $relatedType, string $relatedId)
     {
-        return $query->where('related_type', $relatedType)
-            ->where('related_id', $relatedId);
+        return $query->where('terkait_tipe', $relatedType)
+            ->where('terkait_id', $relatedId);
     }
 }

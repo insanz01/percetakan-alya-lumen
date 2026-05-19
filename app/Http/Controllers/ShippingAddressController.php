@@ -14,8 +14,8 @@ class ShippingAddressController extends Controller
     {
         $user = $request->auth;
 
-        $addresses = ShippingAddress::where('user_id', $user->id)
-            ->orderBy('is_default', 'desc')
+        $addresses = ShippingAddress::where('pengguna_id', $user->id)
+            ->orderBy('utama', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -30,30 +30,30 @@ class ShippingAddressController extends Controller
         $user = $request->auth;
 
         $this->validate($request, [
-            'recipient_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string',
-            'city' => 'required|string|max:100',
-            'province' => 'required|string|max:100',
-            'postal_code' => 'required|string|max:10',
-            'is_default' => 'nullable|boolean',
+            'nama_penerima' => 'required|string|max:255',
+            'telepon' => 'required|string|max:20',
+            'alamat' => 'required|string',
+            'kota' => 'required|string|max:100',
+            'provinsi' => 'required|string|max:100',
+            'kode_pos' => 'required|string|max:10',
+            'utama' => 'nullable|boolean',
         ]);
 
         // If this is set as default, remove default from others
-        if ($request->boolean('is_default')) {
-            ShippingAddress::where('user_id', $user->id)
-                ->update(['is_default' => false]);
+        if ($request->boolean('utama')) {
+            ShippingAddress::where('pengguna_id', $user->id)
+                ->update(['utama' => false]);
         }
 
         $address = ShippingAddress::create([
-            'user_id' => $user->id,
-            'recipient_name' => $request->input('recipient_name'),
-            'phone' => $request->input('phone'),
-            'address' => $request->input('address'),
-            'city' => $request->input('city'),
-            'province' => $request->input('province'),
-            'postal_code' => $request->input('postal_code'),
-            'is_default' => $request->boolean('is_default'),
+            'pengguna_id' => $user->id,
+            'nama_penerima' => $request->input('nama_penerima'),
+            'telepon' => $request->input('telepon'),
+            'alamat' => $request->input('alamat'),
+            'kota' => $request->input('kota'),
+            'provinsi' => $request->input('provinsi'),
+            'kode_pos' => $request->input('kode_pos'),
+            'utama' => $request->boolean('utama'),
         ]);
 
         return $this->successResponse($address, 'Alamat berhasil ditambahkan', 201);
@@ -67,7 +67,7 @@ class ShippingAddressController extends Controller
         $user = $request->auth;
 
         $address = ShippingAddress::where('id', $id)
-            ->where('user_id', $user->id)
+            ->where('pengguna_id', $user->id)
             ->first();
 
         if (!$address) {
@@ -75,20 +75,20 @@ class ShippingAddressController extends Controller
         }
 
         $this->validate($request, [
-            'recipient_name' => 'sometimes|required|string|max:255',
-            'phone' => 'sometimes|required|string|max:20',
-            'address' => 'sometimes|required|string',
-            'city' => 'sometimes|required|string|max:100',
-            'province' => 'sometimes|required|string|max:100',
-            'postal_code' => 'sometimes|required|string|max:10',
-            'is_default' => 'nullable|boolean',
+            'nama_penerima' => 'sometimes|required|string|max:255',
+            'telepon' => 'sometimes|required|string|max:20',
+            'alamat' => 'sometimes|required|string',
+            'kota' => 'sometimes|required|string|max:100',
+            'provinsi' => 'sometimes|required|string|max:100',
+            'kode_pos' => 'sometimes|required|string|max:10',
+            'utama' => 'nullable|boolean',
         ]);
 
         // If this is set as default, remove default from others
-        if ($request->boolean('is_default')) {
-            ShippingAddress::where('user_id', $user->id)
+        if ($request->boolean('utama')) {
+            ShippingAddress::where('pengguna_id', $user->id)
                 ->where('id', '!=', $id)
-                ->update(['is_default' => false]);
+                ->update(['utama' => false]);
         }
 
         $address->update($request->all());
@@ -104,7 +104,7 @@ class ShippingAddressController extends Controller
         $user = $request->auth;
 
         $address = ShippingAddress::where('id', $id)
-            ->where('user_id', $user->id)
+            ->where('pengguna_id', $user->id)
             ->first();
 
         if (!$address) {
@@ -124,7 +124,7 @@ class ShippingAddressController extends Controller
         $user = $request->auth;
 
         $address = ShippingAddress::where('id', $id)
-            ->where('user_id', $user->id)
+            ->where('pengguna_id', $user->id)
             ->first();
 
         if (!$address) {
@@ -132,11 +132,11 @@ class ShippingAddressController extends Controller
         }
 
         // Remove default from all other addresses
-        ShippingAddress::where('user_id', $user->id)
-            ->update(['is_default' => false]);
+        ShippingAddress::where('pengguna_id', $user->id)
+            ->update(['utama' => false]);
 
         // Set this one as default
-        $address->is_default = true;
+        $address->utama = true;
         $address->save();
 
         return $this->successResponse($address, 'Alamat default berhasil diubah');

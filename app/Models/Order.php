@@ -11,32 +11,32 @@ class Order extends Model
     use HasUuids;
 
     protected $fillable = [
-        'order_number',
-        'user_id',
-        'shipping_address_id',
-        'shipping_method',
-        'shipping_provider',
-        'tracking_number',
-        'payment_method',
-        'payment_type',
+        'nomor_pesanan',
+        'pengguna_id',
+        'alamat_pengiriman_id',
+        'metode_pengiriman',
+        'kurir',
+        'nomor_resi',
+        'metode_pembayaran',
+        'tipe_pembayaran',
         'subtotal',
-        'shipping_cost',
-        'discount',
-        'total_amount',
+        'biaya_kirim',
+        'diskon',
+        'total',
         'status',
-        'payment_status',
-        'payment_deadline',
-        'paid_at',
-        'notes',
+        'status_bayar',
+        'batas_bayar',
+        'dibayar_pada',
+        'catatan',
     ];
 
     protected $casts = [
         'subtotal' => 'decimal:2',
-        'shipping_cost' => 'decimal:2',
-        'discount' => 'decimal:2',
-        'total_amount' => 'decimal:2',
-        'payment_deadline' => 'datetime',
-        'paid_at' => 'datetime',
+        'biaya_kirim' => 'decimal:2',
+        'diskon' => 'decimal:2',
+        'total' => 'decimal:2',
+        'batas_bayar' => 'datetime',
+        'dibayar_pada' => 'datetime',
     ];
 
     public function user()

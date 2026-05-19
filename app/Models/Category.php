@@ -10,17 +10,17 @@ class Category extends Model
     use HasUuids;
 
     protected $fillable = [
-        'name',
+        'nama',
         'slug',
-        'icon',
-        'description',
-        'image',
-        'is_active',
-        'sort_order',
+        'ikon',
+        'deskripsi',
+        'gambar',
+        'aktif',
+        'urutan',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'aktif' => 'boolean',
     ];
 
     protected $appends = ['product_count'];

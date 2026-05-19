@@ -11,22 +11,22 @@ class ContactMessage extends Model
     use HasUuids;
 
     protected $fillable = [
-        'name',
+        'nama',
         'email',
-        'phone',
-        'subject',
-        'message',
+        'telepon',
+        'subjek',
+        'pesan',
         'status',
-        'admin_notes',
-        'replied_at',
+        'catatan_admin',
+        'dibalas_pada',
     ];
 
     protected $casts = [
-        'replied_at' => 'datetime',
+        'dibalas_pada' => 'datetime',
     ];
 
     /**
-     * Scope for new messages
+     * Cakupan untuk pesan baru
      */
     public function scopeNew($query)
     {
@@ -34,7 +34,7 @@ class ContactMessage extends Model
     }
 
     /**
-     * Scope for unread messages
+     * Cakupan untuk pesan yang belum dibaca
      */
     public function scopeUnread($query)
     {
@@ -42,7 +42,7 @@ class ContactMessage extends Model
     }
 
     /**
-     * Mark as read
+     * Tandai sebagai telah dibaca
      */
     public function markAsRead(): void
     {
@@ -52,13 +52,13 @@ class ContactMessage extends Model
     }
 
     /**
-     * Mark as replied
+     * Tandai sebagai telah dibalas
      */
     public function markAsReplied(): void
     {
         $this->update([
             'status' => 'replied',
-            'replied_at' => Carbon::now(),
+            'dibalas_pada' => Carbon::now(),
         ]);
     }
 }

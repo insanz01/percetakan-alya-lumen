@@ -5,31 +5,25 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('promos', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('code')->unique();
-            $table->string('description')->nullable();
-            $table->enum('type', ['percentage', 'fixed'])->default('percentage');
-            $table->decimal('discount', 10, 2); // percentage or fixed amount
-            $table->decimal('min_purchase', 15, 2)->default(0);
-            $table->decimal('max_discount', 15, 2)->nullable();
-            $table->integer('usage_limit')->nullable();
-            $table->integer('usage_count')->default(0);
-            $table->timestamp('start_date')->nullable();
-            $table->timestamp('end_date')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('kode')->unique();
+            $table->string('deskripsi')->nullable();
+            $table->enum('tipe', ['percentage', 'fixed'])->default('percentage');
+            $table->decimal('diskon', 10, 2);
+            $table->decimal('min_beli', 15, 2)->default(0);
+            $table->decimal('maks_diskon', 15, 2)->nullable();
+            $table->integer('batas_penggunaan')->nullable();
+            $table->integer('jumlah_penggunaan')->default(0);
+            $table->timestamp('tanggal_mulai')->nullable();
+            $table->timestamp('tanggal_berakhir')->nullable();
+            $table->boolean('aktif')->default(true);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('promos');

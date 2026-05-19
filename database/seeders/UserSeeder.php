@@ -17,104 +17,104 @@ class UserSeeder extends Seeder
     {
         // Super Admin
         $superAdmin = User::create([
-            'name' => 'Super Admin',
+            'nama' => 'Super Admin',
             'email' => 'admin@printmaster.id',
             'password' => Hash::make('admin123'),
-            'phone' => '081200000001',
-            'role' => 'super_admin',
-            'is_active' => true,
-            'email_verified_at' => Carbon::now(),
+            'telepon' => '081200000001',
+            'peran' => 'super_admin',
+            'aktif' => true,
+            'email_diverifikasi_pada' => Carbon::now(),
         ]);
 
         // Staff Admin
         User::create([
-            'name' => 'Staff Admin',
+            'nama' => 'Staff Admin',
             'email' => 'staff@printmaster.id',
             'password' => Hash::make('staff123'),
-            'phone' => '081200000002',
-            'role' => 'admin',
-            'is_active' => true,
-            'email_verified_at' => Carbon::now(),
+            'telepon' => '081200000002',
+            'peran' => 'admin',
+            'aktif' => true,
+            'email_diverifikasi_pada' => Carbon::now(),
         ]);
 
         // Sample Customers
         $customer1 = User::create([
-            'name' => 'Budi Santoso',
+            'nama' => 'Budi Santoso',
             'email' => 'budi@email.com',
             'password' => Hash::make('user123'),
-            'phone' => '081234567890',
-            'role' => 'customer',
-            'is_active' => true,
-            'email_verified_at' => Carbon::now(),
+            'telepon' => '081234567890',
+            'peran' => 'customer',
+            'aktif' => true,
+            'email_diverifikasi_pada' => Carbon::now(),
         ]);
 
         // Create shipping address for customer 1
         ShippingAddress::create([
-            'user_id' => $customer1->id,
+            'pengguna_id' => $customer1->id,
             'label' => 'Rumah',
-            'recipient_name' => 'Budi Santoso',
-            'phone' => '081234567890',
-            'address' => 'Jl. Kebon Jeruk No. 10, RT 05/RW 02',
-            'city' => 'Jakarta Barat',
-            'province' => 'DKI Jakarta',
-            'postal_code' => '11530',
-            'is_default' => true,
+            'nama_penerima' => 'Budi Santoso',
+            'telepon' => '081234567890',
+            'alamat' => 'Jl. Kebon Jeruk No. 10, RT 05/RW 02',
+            'kota' => 'Jakarta Barat',
+            'provinsi' => 'DKI Jakarta',
+            'kode_pos' => '11530',
+            'utama' => true,
         ]);
 
         ShippingAddress::create([
-            'user_id' => $customer1->id,
+            'pengguna_id' => $customer1->id,
             'label' => 'Kantor',
-            'recipient_name' => 'Budi Santoso',
-            'phone' => '081234567891',
-            'address' => 'Gedung Graha Niaga Lt. 5, Jl. Jend. Sudirman Kav. 58',
-            'city' => 'Jakarta Selatan',
-            'province' => 'DKI Jakarta',
-            'postal_code' => '12190',
-            'is_default' => false,
+            'nama_penerima' => 'Budi Santoso',
+            'telepon' => '081234567891',
+            'alamat' => 'Gedung Graha Niaga Lt. 5, Jl. Jend. Sudirman Kav. 58',
+            'kota' => 'Jakarta Selatan',
+            'provinsi' => 'DKI Jakarta',
+            'kode_pos' => '12190',
+            'utama' => false,
         ]);
 
         $customer2 = User::create([
-            'name' => 'Siti Rahayu',
+            'nama' => 'Siti Rahayu',
             'email' => 'siti@email.com',
             'password' => Hash::make('user123'),
-            'phone' => '081345678901',
-            'role' => 'customer',
-            'is_active' => true,
-            'email_verified_at' => Carbon::now(),
+            'telepon' => '081345678901',
+            'peran' => 'customer',
+            'aktif' => true,
+            'email_diverifikasi_pada' => Carbon::now(),
         ]);
 
         ShippingAddress::create([
-            'user_id' => $customer2->id,
+            'pengguna_id' => $customer2->id,
             'label' => 'Rumah',
-            'recipient_name' => 'Siti Rahayu',
-            'phone' => '081345678901',
-            'address' => 'Jl. Cempaka Putih Raya No. 25',
-            'city' => 'Jakarta Pusat',
-            'province' => 'DKI Jakarta',
-            'postal_code' => '10520',
-            'is_default' => true,
+            'nama_penerima' => 'Siti Rahayu',
+            'telepon' => '081345678901',
+            'alamat' => 'Jl. Cempaka Putih Raya No. 25',
+            'kota' => 'Jakarta Pusat',
+            'provinsi' => 'DKI Jakarta',
+            'kode_pos' => '10520',
+            'utama' => true,
         ]);
 
         $customer3 = User::create([
-            'name' => 'Ahmad Wijaya',
+            'nama' => 'Ahmad Wijaya',
             'email' => 'ahmad@email.com',
             'password' => Hash::make('user123'),
-            'phone' => '082112345678',
-            'role' => 'customer',
-            'is_active' => true,
-            'email_verified_at' => Carbon::now(),
+            'telepon' => '082112345678',
+            'peran' => 'customer',
+            'aktif' => true,
+            'email_diverifikasi_pada' => Carbon::now(),
         ]);
 
         ShippingAddress::create([
-            'user_id' => $customer3->id,
+            'pengguna_id' => $customer3->id,
             'label' => 'Toko',
-            'recipient_name' => 'Ahmad Wijaya',
-            'phone' => '082112345678',
-            'address' => 'Ruko Golden Boulevard Blok C No. 15',
-            'city' => 'Tangerang',
-            'province' => 'Banten',
-            'postal_code' => '15143',
-            'is_default' => true,
+            'nama_penerima' => 'Ahmad Wijaya',
+            'telepon' => '082112345678',
+            'alamat' => 'Ruko Golden Boulevard Blok C No. 15',
+            'kota' => 'Tangerang',
+            'provinsi' => 'Banten',
+            'kode_pos' => '15143',
+            'utama' => true,
         ]);
 
         echo "Users and addresses seeded!\n";

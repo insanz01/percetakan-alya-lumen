@@ -24,7 +24,7 @@ class NewsletterController extends Controller
         $existing = NewsletterSubscriber::where('email', $email)->first();
 
         if ($existing) {
-            if ($existing->is_active) {
+            if ($existing->aktif) {
                 return $this->success(null, 'Email sudah terdaftar di newsletter kami.');
             } else {
                 // Resubscribe
@@ -36,7 +36,7 @@ class NewsletterController extends Controller
         // Create new subscriber
         NewsletterSubscriber::create([
             'email' => $email,
-            'is_active' => true,
+            'aktif' => true,
         ]);
 
         return $this->success(null, 'Terima kasih! Email Anda berhasil didaftarkan untuk newsletter.');
@@ -47,13 +47,13 @@ class NewsletterController extends Controller
      */
     public function unsubscribe(Request $request, string $token): JsonResponse
     {
-        $subscriber = NewsletterSubscriber::where('unsubscribe_token', $token)->first();
+        $subscriber = NewsletterSubscriber::where('token_berhenti', $token)->first();
 
         if (!$subscriber) {
             return $this->error('Link unsubscribe tidak valid.', 404);
         }
 
-        if (!$subscriber->is_active) {
+        if (!$subscriber->aktif) {
             return $this->success(null, 'Email sudah tidak berlangganan newsletter.');
         }
 
@@ -72,7 +72,7 @@ class NewsletterController extends Controller
         // Filter by active status
         if ($request->has('active')) {
             $isActive = filter_var($request->input('active'), FILTER_VALIDATE_BOOLEAN);
-            $query->where('is_active', $isActive);
+            $query->where('aktif', $isActive);
         }
 
         // Search
@@ -81,7 +81,7 @@ class NewsletterController extends Controller
         }
 
         // Sort
-        $sortBy = $request->input('sort_by', 'subscribed_at');
+        $sortBy = $request->input('sort_by', 'berlangganan_pada');
         $sortDir = $request->input('sort_dir', 'desc');
         $query->orderBy($sortBy, $sortDir);
 
@@ -125,9 +125,9 @@ class NewsletterController extends Controller
         $stats = [
             'total' => NewsletterSubscriber::count(),
             'active' => NewsletterSubscriber::active()->count(),
-            'unsubscribed' => NewsletterSubscriber::where('is_active', false)->count(),
-            'today' => NewsletterSubscriber::whereDate('subscribed_at', Carbon::today())->count(),
-            'this_month' => NewsletterSubscriber::whereBetween('subscribed_at', [
+            'unsubscribed' => NewsletterSubscriber::where('aktif', false)->count(),
+            'today' => NewsletterSubscriber::whereDate('berlangganan_pada', Carbon::today())->count(),
+            'this_month' => NewsletterSubscriber::whereBetween('berlangganan_pada', [
                 Carbon::now()->startOfMonth(),
                 Carbon::now()->endOfMonth(),
             ])->count(),
@@ -142,8 +142,8 @@ class NewsletterController extends Controller
     public function export(): JsonResponse
     {
         $subscribers = NewsletterSubscriber::active()
-            ->select('email', 'subscribed_at')
-            ->orderBy('subscribed_at', 'desc')
+            ->select('email', 'berlangganan_pada')
+            ->orderBy('berlangganan_pada', 'desc')
             ->get();
 
         return $this->success([

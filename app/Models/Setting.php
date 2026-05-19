@@ -7,38 +7,38 @@ use Illuminate\Database\Eloquent\Model;
 class Setting extends Model
 {
     protected $fillable = [
-        'key',
-        'value',
-        'type',
-        'group',
+        'kunci',
+        'nilai',
+        'tipe',
+        'grup',
     ];
 
     /**
-     * Get setting value by key
+     * Ambil nilai pengaturan berdasarkan kunci
      */
     public static function getValue(string $key, $default = null)
     {
-        $setting = self::where('key', $key)->first();
+        $setting = self::where('kunci', $key)->first();
 
         if (!$setting) {
             return $default;
         }
 
-        // Cast value based on type
-        return match ($setting->type) {
-            'boolean' => filter_var($setting->value, FILTER_VALIDATE_BOOLEAN),
-            'json' => json_decode($setting->value, true),
-            'integer' => (int) $setting->value,
-            default => $setting->value,
+        // Konversi nilai berdasarkan tipe
+        return match ($setting->tipe) {
+            'boolean' => filter_var($setting->nilai, FILTER_VALIDATE_BOOLEAN),
+            'json' => json_decode($setting->nilai, true),
+            'integer' => (int) $setting->nilai,
+            default => $setting->nilai,
         };
     }
 
     /**
-     * Set setting value
+     * Simpan nilai pengaturan
      */
     public static function setValue(string $key, $value, string $type = 'string', string $group = 'general'): self
     {
-        // Convert value to string for storage
+        // Konversi nilai ke string untuk penyimpanan
         $storedValue = match ($type) {
             'boolean' => $value ? 'true' : 'false',
             'json' => json_encode($value),
@@ -46,28 +46,28 @@ class Setting extends Model
         };
 
         return self::updateOrCreate(
-            ['key' => $key],
-            ['value' => $storedValue, 'type' => $type, 'group' => $group]
+            ['kunci' => $key],
+            ['nilai' => $storedValue, 'tipe' => $type, 'grup' => $group]
         );
     }
 
     /**
-     * Get all settings by group
+     * Ambil semua pengaturan berdasarkan grup
      */
     public static function getByGroup(string $group): array
     {
-        $settings = self::where('group', $group)->get();
+        $settings = self::where('grup', $group)->get();
 
         $result = [];
         foreach ($settings as $setting) {
-            $result[$setting->key] = self::getValue($setting->key);
+            $result[$setting->kunci] = self::getValue($setting->kunci);
         }
 
         return $result;
     }
 
     /**
-     * Get all settings as key-value pairs
+     * Ambil semua pengaturan sebagai pasangan kunci-nilai
      */
     public static function getAllAsArray(): array
     {
@@ -75,7 +75,7 @@ class Setting extends Model
 
         $result = [];
         foreach ($settings as $setting) {
-            $result[$setting->key] = self::getValue($setting->key);
+            $result[$setting->kunci] = self::getValue($setting->kunci);
         }
 
         return $result;

@@ -9,20 +9,20 @@ return new class extends Migration {
     {
         Schema::create('uploaded_files', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id')->nullable();
-            $table->string('original_name');
-            $table->string('stored_name');
-            $table->string('path');
+            $table->uuid('pengguna_id')->nullable();
+            $table->string('nama_asli');
+            $table->string('nama_disimpan');
+            $table->string('jalur');
             $table->string('disk')->default('local');
-            $table->string('mime_type');
-            $table->bigInteger('size'); // in bytes
-            $table->string('type')->default('design'); // design, payment_proof, etc
-            $table->uuid('related_id')->nullable(); // order_id, etc
-            $table->string('related_type')->nullable(); // order, etc
+            $table->string('tipe_mime');
+            $table->bigInteger('ukuran');
+            $table->string('tipe')->default('design');
+            $table->uuid('terkait_id')->nullable();
+            $table->string('terkait_tipe')->nullable();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->index(['related_id', 'related_type']);
+            $table->foreign('pengguna_id')->references('id')->on('users')->onDelete('set null');
+            $table->index(['terkait_id', 'terkait_tipe']);
         });
     }
 

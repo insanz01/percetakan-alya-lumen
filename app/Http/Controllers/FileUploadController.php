@@ -47,13 +47,13 @@ class FileUploadController extends Controller
     {
         $this->validate($request, [
             'file' => 'required|file',
-            'type' => 'required|in:design,payment_proof',
-            'related_id' => 'nullable|string',
-            'related_type' => 'nullable|string',
+            'tipe' => 'required|in:design,payment_proof',
+            'terkait_id' => 'nullable|string',
+            'terkait_tipe' => 'nullable|string',
         ]);
 
         $file = $request->file('file');
-        $type = $request->input('type');
+        $type = $request->input('tipe');
 
         // Validate file type
         if (!in_array($file->getMimeType(), $this->allowedTypes[$type])) {
@@ -79,24 +79,24 @@ class FileUploadController extends Controller
 
         // Create database record
         $uploadedFile = UploadedFile::create([
-            'user_id' => $request->user()->id ?? null,
-            'original_name' => $file->getClientOriginalName(),
-            'stored_name' => $storedName,
-            'path' => $fullPath,
+            'pengguna_id' => $request->user()->id ?? null,
+            'nama_asli' => $file->getClientOriginalName(),
+            'nama_disimpan' => $storedName,
+            'jalur' => $fullPath,
             'disk' => $disk,
-            'mime_type' => $file->getMimeType(),
-            'size' => $file->getSize(),
-            'type' => $type,
-            'related_id' => $request->input('related_id'),
-            'related_type' => $request->input('related_type'),
+            'tipe_mime' => $file->getMimeType(),
+            'ukuran' => $file->getSize(),
+            'tipe' => $type,
+            'terkait_id' => $request->input('terkait_id'),
+            'terkait_tipe' => $request->input('terkait_tipe'),
         ]);
 
         return $this->success([
             'id' => $uploadedFile->id,
-            'name' => $uploadedFile->original_name,
-            'size' => $uploadedFile->size,
+            'nama_asli' => $uploadedFile->nama_asli,
+            'ukuran' => $uploadedFile->ukuran,
             'human_size' => $uploadedFile->human_size,
-            'mime_type' => $uploadedFile->mime_type,
+            'tipe_mime' => $uploadedFile->tipe_mime,
             'url' => $uploadedFile->url,
         ], 'File berhasil diupload');
     }
@@ -114,11 +114,11 @@ class FileUploadController extends Controller
 
         return $this->success([
             'id' => $file->id,
-            'name' => $file->original_name,
-            'size' => $file->size,
+            'nama_asli' => $file->nama_asli,
+            'ukuran' => $file->ukuran,
             'human_size' => $file->human_size,
-            'mime_type' => $file->mime_type,
-            'type' => $file->type,
+            'tipe_mime' => $file->tipe_mime,
+            'tipe' => $file->tipe,
             'url' => $file->url,
             'created_at' => $file->created_at,
         ]);
@@ -137,16 +137,16 @@ class FileUploadController extends Controller
 
         $storage = Storage::disk($file->disk);
 
-        if (!$storage->exists($file->path)) {
+        if (!$storage->exists($file->jalur)) {
             return response()->json(['success' => false, 'message' => 'File not found on storage'], 404);
         }
 
         // Get the full path to the file
-        $fullPath = storage_path('app/' . $file->path);
+        $fullPath = storage_path('app/' . $file->jalur);
 
         // Return download response with original filename and proper headers
-        return response()->download($fullPath, $file->original_name, [
-            'Content-Type' => $file->mime_type,
+        return response()->download($fullPath, $file->nama_asli, [
+            'Content-Type' => $file->tipe_mime,
         ]);
     }
 
@@ -163,16 +163,16 @@ class FileUploadController extends Controller
 
         // Check ownership (if user is logged in)
         $user = $request->user();
-        if ($user && $file->user_id && $file->user_id !== $user->id) {
+        if ($user && $file->pengguna_id && $file->pengguna_id !== $user->id) {
             // Only allow delete own files unless admin
-            if ($user->role !== 'admin' && $user->role !== 'super_admin') {
+            if ($user->peran !== 'admin' && $user->peran !== 'super_admin') {
                 return $this->error('Unauthorized', 403);
             }
         }
 
         // Delete from storage
-        if (Storage::disk($file->disk)->exists($file->path)) {
-            Storage::disk($file->disk)->delete($file->path);
+        if (Storage::disk($file->disk)->exists($file->jalur)) {
+            Storage::disk($file->disk)->delete($file->jalur);
         }
 
         // Delete database record
@@ -187,23 +187,23 @@ class FileUploadController extends Controller
     public function forRelated(Request $request): JsonResponse
     {
         $this->validate($request, [
-            'related_type' => 'required|string',
-            'related_id' => 'required|string',
+            'terkait_tipe' => 'required|string',
+            'terkait_id' => 'required|string',
         ]);
 
         $files = UploadedFile::forRelated(
-            $request->input('related_type'),
-            $request->input('related_id')
+            $request->input('terkait_tipe'),
+            $request->input('terkait_id')
         )->get();
 
         return $this->success($files->map(function ($file) {
             return [
                 'id' => $file->id,
-                'name' => $file->original_name,
-                'size' => $file->size,
+                'nama_asli' => $file->nama_asli,
+                'ukuran' => $file->ukuran,
                 'human_size' => $file->human_size,
-                'mime_type' => $file->mime_type,
-                'type' => $file->type,
+                'tipe_mime' => $file->tipe_mime,
+                'tipe' => $file->tipe,
                 'url' => $file->url,
                 'created_at' => $file->created_at,
             ];

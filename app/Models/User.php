@@ -14,13 +14,13 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     use Authenticatable, Authorizable, HasUuids;
 
     protected $fillable = [
-        'name',
+        'nama',
         'email',
         'password',
-        'phone',
+        'telepon',
         'avatar',
-        'role',
-        'is_active',
+        'peran',
+        'aktif',
     ];
 
     protected $hidden = [
@@ -29,8 +29,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'is_active' => 'boolean',
+        'email_diverifikasi_pada' => 'datetime',
+        'aktif' => 'boolean',
     ];
 
     public function addresses()
@@ -45,6 +45,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public function isAdmin()
     {
-        return in_array($this->role, ['admin', 'super_admin']);
+        return in_array($this->peran, ['admin', 'super_admin']);
     }
 }

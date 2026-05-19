@@ -66,7 +66,7 @@ class ImageUploadController extends Controller
         $imageUrl = url('storage/' . $fullPath);
 
         // Update product images array
-        $images = $product->images ?? [];
+        $images = $product->gambar ?? [];
         $replaceIndex = $request->input('replace_index');
 
         if ($replaceIndex !== null && isset($images[$replaceIndex])) {
@@ -79,12 +79,12 @@ class ImageUploadController extends Controller
             $images[] = $imageUrl;
         }
 
-        $product->images = $images;
+        $product->gambar = $images;
         $product->save();
 
         return $this->success([
             'url' => $imageUrl,
-            'images' => $images,
+            'gambar' => $images,
             'index' => $replaceIndex ?? (count($images) - 1),
         ], 'Gambar produk berhasil diupload');
     }
@@ -104,7 +104,7 @@ class ImageUploadController extends Controller
             'index' => 'required|integer|min:0',
         ]);
 
-        $images = $product->images ?? [];
+        $images = $product->gambar ?? [];
         $index = $request->input('index');
 
         if (!isset($images[$index])) {
@@ -117,11 +117,11 @@ class ImageUploadController extends Controller
         // Remove from array
         array_splice($images, $index, 1);
 
-        $product->images = array_values($images);
+        $product->gambar = array_values($images);
         $product->save();
 
         return $this->success([
-            'images' => $product->images,
+            'gambar' => $product->gambar,
         ], 'Gambar produk berhasil dihapus');
     }
 
@@ -153,8 +153,8 @@ class ImageUploadController extends Controller
         }
 
         // Delete old image if exists and is local
-        if ($category->image) {
-            $this->deleteOldImage($category->image);
+        if ($category->gambar) {
+            $this->deleteOldImage($category->gambar);
         }
 
         // Generate unique filename
@@ -169,7 +169,7 @@ class ImageUploadController extends Controller
         $imageUrl = url('storage/' . $fullPath);
 
         // Update category
-        $category->image = $imageUrl;
+        $category->gambar = $imageUrl;
         $category->save();
 
         return $this->success([
@@ -188,9 +188,9 @@ class ImageUploadController extends Controller
             return $this->error('Category not found', 404);
         }
 
-        if ($category->image) {
-            $this->deleteOldImage($category->image);
-            $category->image = null;
+        if ($category->gambar) {
+            $this->deleteOldImage($category->gambar);
+            $category->gambar = null;
             $category->save();
         }
 

@@ -17,25 +17,25 @@ class UserController extends Controller
         $query = User::with('addresses');
 
         // Filter by role
-        if ($request->has('role')) {
-            $query->where('role', $request->input('role'));
+        if ($request->has('peran')) {
+            $query->where('peran', $request->input('peran'));
         } else {
             // Default: only customers
-            $query->where('role', 'customer');
+            $query->where('peran', 'customer');
         }
 
         // Filter by active status
         if ($request->has('active')) {
-            $query->where('is_active', $request->boolean('active'));
+            $query->where('aktif', $request->boolean('active'));
         }
 
         // Search
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
+                $q->where('nama', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%");
+                    ->orWhere('telepon', 'like', "%{$search}%");
             });
         }
 
@@ -73,20 +73,20 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'phone' => 'nullable|string',
-            'role' => 'nullable|in:customer,admin,super_admin',
+            'telepon' => 'nullable|string',
+            'peran' => 'nullable|in:customer,admin,super_admin',
         ]);
 
         $user = User::create([
-            'name' => $request->input('name'),
+            'nama' => $request->input('nama'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
-            'phone' => $request->input('phone'),
-            'role' => $request->input('role', 'customer'),
-            'is_active' => true,
+            'telepon' => $request->input('telepon'),
+            'peran' => $request->input('peran', 'customer'),
+            'aktif' => true,
         ]);
 
         return $this->successResponse($user, 'User berhasil dibuat', 201);
@@ -104,13 +104,13 @@ class UserController extends Controller
         }
 
         $this->validate($request, [
-            'name' => 'sometimes|required|string|max:255',
+            'nama' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|unique:users,email,' . $id,
-            'phone' => 'nullable|string',
-            'is_active' => 'nullable|boolean',
+            'telepon' => 'nullable|string',
+            'aktif' => 'nullable|boolean',
         ]);
 
-        $data = $request->only(['name', 'email', 'phone', 'is_active']);
+        $data = $request->only(['nama', 'email', 'telepon', 'aktif']);
 
         if ($request->has('password') && $request->input('password')) {
             $data['password'] = Hash::make($request->input('password'));
@@ -145,9 +145,9 @@ class UserController extends Controller
         $thisMonth = Carbon::now()->startOfMonth();
 
         $stats = [
-            'total_customers' => User::where('role', 'customer')->count(),
-            'active_customers' => User::where('role', 'customer')->where('is_active', true)->count(),
-            'new_customers_this_month' => User::where('role', 'customer')->where('created_at', '>=', $thisMonth)->count(),
+            'total_customers' => User::where('peran', 'customer')->count(),
+            'active_customers' => User::where('peran', 'customer')->where('aktif', true)->count(),
+            'new_customers_this_month' => User::where('peran', 'customer')->where('created_at', '>=', $thisMonth)->count(),
         ];
 
         return $this->successResponse($stats);

@@ -9,14 +9,14 @@ return new class extends Migration {
     {
         Schema::create('contact_messages', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name');
+            $table->string('nama');
             $table->string('email');
-            $table->string('phone')->nullable();
-            $table->string('subject');
-            $table->text('message');
+            $table->string('telepon')->nullable();
+            $table->string('subjek');
+            $table->text('pesan');
             $table->enum('status', ['new', 'read', 'replied', 'archived'])->default('new');
-            $table->text('admin_notes')->nullable();
-            $table->timestamp('replied_at')->nullable();
+            $table->text('catatan_admin')->nullable();
+            $table->timestamp('dibalas_pada')->nullable();
             $table->timestamps();
         });
     }

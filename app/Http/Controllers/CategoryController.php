@@ -17,20 +17,20 @@ class CategoryController extends Controller
 
         // Filter by active status
         if ($request->has('active')) {
-            $query->where('is_active', $request->boolean('active'));
+            $query->where('aktif', $request->boolean('active'));
         }
 
         // Search
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
             });
         }
 
         // Sort
-        $sortBy = $request->input('sort_by', 'sort_order');
+        $sortBy = $request->input('sort_by', 'urutan');
         $sortDir = $request->input('sort_dir', 'asc');
         $query->orderBy($sortBy, $sortDir);
 
@@ -77,21 +77,21 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'icon' => 'nullable|string',
-            'image' => 'nullable|string',
-            'sort_order' => 'nullable|integer',
+            'nama' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'ikon' => 'nullable|string',
+            'gambar' => 'nullable|string',
+            'urutan' => 'nullable|integer',
         ]);
 
         $category = Category::create([
-            'name' => $request->input('name'),
-            'slug' => Str::slug($request->input('name')),
-            'description' => $request->input('description'),
-            'icon' => $request->input('icon'),
-            'image' => $request->input('image'),
-            'sort_order' => $request->input('sort_order', 0),
-            'is_active' => true,
+            'nama' => $request->input('nama'),
+            'slug' => Str::slug($request->input('nama')),
+            'deskripsi' => $request->input('deskripsi'),
+            'ikon' => $request->input('ikon'),
+            'gambar' => $request->input('gambar'),
+            'urutan' => $request->input('urutan', 0),
+            'aktif' => true,
         ]);
 
         return $this->successResponse($category, 'Kategori berhasil dibuat', 201);
@@ -109,18 +109,18 @@ class CategoryController extends Controller
         }
 
         $this->validate($request, [
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'icon' => 'nullable|string',
-            'image' => 'nullable|string',
-            'sort_order' => 'nullable|integer',
-            'is_active' => 'nullable|boolean',
+            'nama' => 'sometimes|required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'ikon' => 'nullable|string',
+            'gambar' => 'nullable|string',
+            'urutan' => 'nullable|integer',
+            'aktif' => 'nullable|boolean',
         ]);
 
-        $data = $request->only(['name', 'description', 'icon', 'image', 'sort_order', 'is_active']);
+        $data = $request->only(['nama', 'deskripsi', 'ikon', 'gambar', 'urutan', 'aktif']);
 
-        if ($request->has('name')) {
-            $data['slug'] = Str::slug($request->input('name'));
+        if ($request->has('nama')) {
+            $data['slug'] = Str::slug($request->input('nama'));
         }
 
         $category->update($data);

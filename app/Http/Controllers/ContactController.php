@@ -15,19 +15,19 @@ class ContactController extends Controller
     public function submit(Request $request): JsonResponse
     {
         $this->validate($request, [
-            'name' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:20',
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string|min:20|max:5000',
+            'telepon' => 'nullable|string|max:20',
+            'subjek' => 'required|string|max:255',
+            'pesan' => 'required|string|min:20|max:5000',
         ]);
 
         $message = ContactMessage::create([
-            'name' => $request->input('name'),
+            'nama' => $request->input('nama'),
             'email' => $request->input('email'),
-            'phone' => $request->input('phone'),
-            'subject' => $request->input('subject'),
-            'message' => $request->input('message'),
+            'telepon' => $request->input('telepon'),
+            'subjek' => $request->input('subjek'),
+            'pesan' => $request->input('pesan'),
             'status' => 'new',
         ]);
 
@@ -54,9 +54,9 @@ class ContactController extends Controller
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
+                $q->where('nama', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('subject', 'like', "%{$search}%");
+                    ->orWhere('subjek', 'like', "%{$search}%");
             });
         }
 
@@ -105,7 +105,7 @@ class ContactController extends Controller
     {
         $this->validate($request, [
             'status' => 'required|in:new,read,replied,archived',
-            'admin_notes' => 'nullable|string|max:1000',
+            'catatan_admin' => 'nullable|string|max:1000',
         ]);
 
         $message = ContactMessage::find($id);
@@ -116,12 +116,12 @@ class ContactController extends Controller
 
         $updateData = ['status' => $request->input('status')];
 
-        if ($request->has('admin_notes')) {
-            $updateData['admin_notes'] = $request->input('admin_notes');
+        if ($request->has('catatan_admin')) {
+            $updateData['catatan_admin'] = $request->input('catatan_admin');
         }
 
         if ($request->input('status') === 'replied') {
-            $updateData['replied_at'] = Carbon::now();
+            $updateData['dibalas_pada'] = Carbon::now();
         }
 
         $message->update($updateData);

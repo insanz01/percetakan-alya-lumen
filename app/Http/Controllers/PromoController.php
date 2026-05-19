@@ -18,24 +18,24 @@ class PromoController extends Controller
 
         // Filter by active status
         if ($request->has('active')) {
-            $query->where('is_active', $request->boolean('active'));
+            $query->where('aktif', $request->boolean('active'));
         }
 
         // Filter by valid (currently applicable)
         if ($request->boolean('valid_only')) {
             $now = Carbon::now();
-            $query->where('is_active', true)
+            $query->where('aktif', true)
                 ->where(function ($q) use ($now) {
-                    $q->whereNull('start_date')
-                        ->orWhere('start_date', '<=', $now);
+                    $q->whereNull('tanggal_mulai')
+                        ->orWhere('tanggal_mulai', '<=', $now);
                 })
                 ->where(function ($q) use ($now) {
-                    $q->whereNull('end_date')
-                        ->orWhere('end_date', '>=', $now);
+                    $q->whereNull('tanggal_berakhir')
+                        ->orWhere('tanggal_berakhir', '>=', $now);
                 })
                 ->where(function ($q) {
-                    $q->whereNull('usage_limit')
-                        ->orWhereRaw('usage_count < usage_limit');
+                    $q->whereNull('batas_penggunaan')
+                        ->orWhereRaw('jumlah_penggunaan < batas_penggunaan');
                 });
         }
 
@@ -43,8 +43,8 @@ class PromoController extends Controller
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('code', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                $q->where('kode', 'like', "%{$search}%")
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
             });
         }
 
@@ -82,11 +82,11 @@ class PromoController extends Controller
     public function validateCode(Request $request)
     {
         $this->validate($request, [
-            'code' => 'required|string',
+            'kode' => 'required|string',
             'amount' => 'required|numeric|min:0',
         ]);
 
-        $promo = Promo::where('code', strtoupper($request->input('code')))->first();
+        $promo = Promo::where('kode', strtoupper($request->input('kode')))->first();
 
         if (!$promo) {
             return $this->errorResponse('Kode promo tidak ditemukan', 404);
@@ -98,8 +98,8 @@ class PromoController extends Controller
 
         $amount = $request->input('amount');
 
-        if ($amount < $promo->min_purchase) {
-            return $this->errorResponse("Minimal pembelian Rp " . number_format($promo->min_purchase, 0, ',', '.'), 400);
+        if ($amount < $promo->min_beli) {
+            return $this->errorResponse("Minimal pembelian Rp " . number_format($promo->min_beli, 0, ',', '.'), 400);
         }
 
         $discount = $promo->calculateDiscount($amount);
@@ -117,29 +117,29 @@ class PromoController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'code' => 'required|string|unique:promos,code',
-            'description' => 'nullable|string',
-            'type' => 'required|in:percentage,fixed',
-            'discount' => 'required|numeric|min:0',
-            'min_purchase' => 'nullable|numeric|min:0',
-            'max_discount' => 'nullable|numeric|min:0',
-            'usage_limit' => 'nullable|integer|min:1',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after:start_date',
+            'kode' => 'required|string|unique:promos,kode',
+            'deskripsi' => 'nullable|string',
+            'tipe' => 'required|in:percentage,fixed',
+            'diskon' => 'required|numeric|min:0',
+            'min_beli' => 'nullable|numeric|min:0',
+            'maks_diskon' => 'nullable|numeric|min:0',
+            'batas_penggunaan' => 'nullable|integer|min:1',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_berakhir' => 'nullable|date|after:tanggal_mulai',
         ]);
 
         $promo = Promo::create([
-            'code' => strtoupper($request->input('code')),
-            'description' => $request->input('description'),
-            'type' => $request->input('type'),
-            'discount' => $request->input('discount'),
-            'min_purchase' => $request->input('min_purchase', 0),
-            'max_discount' => $request->input('max_discount'),
-            'usage_limit' => $request->input('usage_limit'),
-            'usage_count' => 0,
-            'start_date' => $request->input('start_date'),
-            'end_date' => $request->input('end_date'),
-            'is_active' => true,
+            'kode' => strtoupper($request->input('kode')),
+            'deskripsi' => $request->input('deskripsi'),
+            'tipe' => $request->input('tipe'),
+            'diskon' => $request->input('diskon'),
+            'min_beli' => $request->input('min_beli', 0),
+            'maks_diskon' => $request->input('maks_diskon'),
+            'batas_penggunaan' => $request->input('batas_penggunaan'),
+            'jumlah_penggunaan' => 0,
+            'tanggal_mulai' => $request->input('tanggal_mulai'),
+            'tanggal_berakhir' => $request->input('tanggal_berakhir'),
+            'aktif' => true,
         ]);
 
         return $this->successResponse($promo, 'Promo berhasil dibuat', 201);
@@ -157,22 +157,22 @@ class PromoController extends Controller
         }
 
         $this->validate($request, [
-            'code' => 'sometimes|required|string|unique:promos,code,' . $id,
-            'description' => 'nullable|string',
-            'type' => 'sometimes|in:percentage,fixed',
-            'discount' => 'sometimes|numeric|min:0',
-            'min_purchase' => 'nullable|numeric|min:0',
-            'max_discount' => 'nullable|numeric|min:0',
-            'usage_limit' => 'nullable|integer|min:1',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
-            'is_active' => 'nullable|boolean',
+            'kode' => 'sometimes|required|string|unique:promos,kode,' . $id,
+            'deskripsi' => 'nullable|string',
+            'tipe' => 'sometimes|in:percentage,fixed',
+            'diskon' => 'sometimes|numeric|min:0',
+            'min_beli' => 'nullable|numeric|min:0',
+            'maks_diskon' => 'nullable|numeric|min:0',
+            'batas_penggunaan' => 'nullable|integer|min:1',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_berakhir' => 'nullable|date',
+            'aktif' => 'nullable|boolean',
         ]);
 
         $data = $request->all();
 
-        if ($request->has('code')) {
-            $data['code'] = strtoupper($request->input('code'));
+        if ($request->has('kode')) {
+            $data['kode'] = strtoupper($request->input('kode'));
         }
 
         $promo->update($data);
@@ -207,7 +207,7 @@ class PromoController extends Controller
             return $this->errorResponse('Promo tidak ditemukan', 404);
         }
 
-        $promo->increment('usage_count');
+        $promo->increment('jumlah_penggunaan');
 
         return $this->successResponse($promo, 'Usage count berhasil diupdate');
     }

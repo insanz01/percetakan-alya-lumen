@@ -22,22 +22,22 @@ class OrderController extends Controller
         }
 
         // Filter by payment status
-        if ($request->has('payment_status')) {
-            $query->where('payment_status', $request->input('payment_status'));
+        if ($request->has('status_bayar')) {
+            $query->where('status_bayar', $request->input('status_bayar'));
         }
 
         // Filter by user
-        if ($request->has('user_id')) {
-            $query->where('user_id', $request->input('user_id'));
+        if ($request->has('pengguna_id')) {
+            $query->where('pengguna_id', $request->input('pengguna_id'));
         }
 
         // Search by order number
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
+                $q->where('nomor_pesanan', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($q2) use ($search) {
-                        $q2->where('name', 'like', "%{$search}%")
+                        $q2->where('nama', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%");
                     });
             });
@@ -83,7 +83,7 @@ class OrderController extends Controller
     public function showByOrderNumber($orderNumber)
     {
         $order = Order::with(['user', 'items.product', 'shippingAddress'])
-            ->where('order_number', $orderNumber)
+            ->where('nomor_pesanan', $orderNumber)
             ->first();
 
         if (!$order) {
@@ -99,63 +99,63 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'user_id' => 'required|exists:users,id',
-            'shipping_address_id' => 'required|exists:shipping_addresses,id',
-            'shipping_method' => 'required|string',
-            'shipping_provider' => 'nullable|string',
-            'payment_method' => 'required|string',
-            'payment_type' => 'nullable|string',
+            'pengguna_id' => 'required|exists:users,id',
+            'alamat_pengiriman_id' => 'required|exists:shipping_addresses,id',
+            'metode_pengiriman' => 'required|string',
+            'kurir' => 'nullable|string',
+            'metode_pembayaran' => 'required|string',
+            'tipe_pembayaran' => 'nullable|string',
             'subtotal' => 'required|numeric|min:0',
-            'shipping_cost' => 'required|numeric|min:0',
-            'discount' => 'nullable|numeric|min:0',
+            'biaya_kirim' => 'required|numeric|min:0',
+            'diskon' => 'nullable|numeric|min:0',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
-            'items.*.total_price' => 'required|numeric|min:0',
+            'items.*.produk_id' => 'required|exists:products,id',
+            'items.*.jumlah' => 'required|integer|min:1',
+            'items.*.harga_satuan' => 'required|numeric|min:0',
+            'items.*.harga_total' => 'required|numeric|min:0',
         ]);
 
         $data = $request->only([
-            'user_id',
-            'shipping_address_id',
-            'shipping_method',
-            'shipping_provider',
-            'payment_method',
-            'payment_type',
+            'pengguna_id',
+            'alamat_pengiriman_id',
+            'metode_pengiriman',
+            'kurir',
+            'metode_pembayaran',
+            'tipe_pembayaran',
             'subtotal',
-            'shipping_cost',
-            'discount',
-            'notes'
+            'biaya_kirim',
+            'diskon',
+            'catatan'
         ]);
 
-        $data['order_number'] = Order::generateOrderNumber();
-        $data['total_amount'] = $data['subtotal'] + $data['shipping_cost'] - ($data['discount'] ?? 0);
+        $data['nomor_pesanan'] = Order::generateOrderNumber();
+        $data['total'] = $data['subtotal'] + $data['biaya_kirim'] - ($data['diskon'] ?? 0);
         $data['status'] = 'pending_payment';
-        $data['payment_status'] = 'pending';
-        $data['payment_deadline'] = Carbon::now()->addHours(24);
+        $data['status_bayar'] = 'pending';
+        $data['batas_bayar'] = Carbon::now()->addHours(24);
 
         $order = Order::create($data);
 
         // Create order items
         foreach ($request->input('items') as $item) {
             OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'size_id' => $item['size_id'] ?? null,
-                'size_name' => $item['size_name'] ?? null,
-                'material_id' => $item['material_id'] ?? null,
-                'material_name' => $item['material_name'] ?? null,
-                'print_side_id' => $item['print_side_id'] ?? null,
-                'print_side_name' => $item['print_side_name'] ?? null,
+                'pesanan_id' => $order->id,
+                'produk_id' => $item['produk_id'],
+                'ukuran_id' => $item['ukuran_id'] ?? null,
+                'nama_ukuran' => $item['nama_ukuran'] ?? null,
+                'bahan_id' => $item['bahan_id'] ?? null,
+                'nama_bahan' => $item['nama_bahan'] ?? null,
+                'sisi_cetak_id' => $item['sisi_cetak_id'] ?? null,
+                'nama_sisi_cetak' => $item['nama_sisi_cetak'] ?? null,
                 'finishing_ids' => $item['finishing_ids'] ?? null,
-                'finishing_names' => $item['finishing_names'] ?? null,
-                'custom_width' => $item['custom_width'] ?? null,
-                'custom_height' => $item['custom_height'] ?? null,
-                'quantity' => $item['quantity'],
-                'unit_price' => $item['unit_price'],
-                'total_price' => $item['total_price'],
-                'uploaded_file_name' => $item['uploaded_file_name'] ?? null,
-                'uploaded_file_url' => $item['uploaded_file_url'] ?? null,
+                'nama_finishing' => $item['nama_finishing'] ?? null,
+                'lebar_kustom' => $item['lebar_kustom'] ?? null,
+                'tinggi_kustom' => $item['tinggi_kustom'] ?? null,
+                'jumlah' => $item['jumlah'],
+                'harga_satuan' => $item['harga_satuan'],
+                'harga_total' => $item['harga_total'],
+                'nama_file_diunggah' => $item['nama_file_diunggah'] ?? null,
+                'url_file_diunggah' => $item['url_file_diunggah'] ?? null,
                 'status' => 'pending_payment',
             ]);
         }
@@ -187,8 +187,8 @@ class OrderController extends Controller
         // Update items status too
         $order->items()->update(['status' => $request->input('status')]);
 
-        if ($request->has('tracking_number')) {
-            $order->tracking_number = $request->input('tracking_number');
+        if ($request->has('nomor_resi')) {
+            $order->nomor_resi = $request->input('nomor_resi');
         }
 
         $order->save();
@@ -208,13 +208,13 @@ class OrderController extends Controller
         }
 
         $this->validate($request, [
-            'payment_status' => 'required|in:pending,paid,expired,refunded',
+            'status_bayar' => 'required|in:pending,paid,expired,refunded',
         ]);
 
-        $order->payment_status = $request->input('payment_status');
+        $order->status_bayar = $request->input('status_bayar');
 
-        if ($request->input('payment_status') === 'paid') {
-            $order->paid_at = Carbon::now();
+        if ($request->input('status_bayar') === 'paid') {
+            $order->dibayar_pada = Carbon::now();
             $order->status = 'payment_verified';
         }
 
@@ -229,7 +229,7 @@ class OrderController extends Controller
     public function userOrders(Request $request, $userId)
     {
         $orders = Order::with(['items.product'])
-            ->where('user_id', $userId)
+            ->where('pengguna_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -251,9 +251,9 @@ class OrderController extends Controller
             'pending_orders' => Order::where('status', 'pending_payment')->count(),
             'processing_orders' => Order::whereIn('status', ['payment_verified', 'file_verification', 'in_production', 'finishing'])->count(),
             'completed_orders' => Order::where('status', 'delivered')->count(),
-            'total_revenue' => Order::where('payment_status', 'paid')->sum('total_amount'),
-            'revenue_today' => Order::where('payment_status', 'paid')->whereDate('created_at', $today)->sum('total_amount'),
-            'revenue_this_month' => Order::where('payment_status', 'paid')->where('created_at', '>=', $thisMonth)->sum('total_amount'),
+            'total_revenue' => Order::where('status_bayar', 'paid')->sum('total'),
+            'revenue_today' => Order::where('status_bayar', 'paid')->whereDate('created_at', $today)->sum('total'),
+            'revenue_this_month' => Order::where('status_bayar', 'paid')->where('created_at', '>=', $thisMonth)->sum('total'),
         ];
 
         return $this->successResponse($stats);
@@ -274,15 +274,15 @@ class OrderController extends Controller
                 $firstItem = $order->items->first();
                 return [
                     'id' => $order->id,
-                    'order_number' => $order->order_number,
-                    'customer' => $order->user ? $order->user->name : 'Guest',
+                    'nomor_pesanan' => $order->nomor_pesanan,
+                    'customer' => $order->user ? $order->user->nama : 'Guest',
                     'customer_email' => $order->user ? $order->user->email : null,
-                    'product' => $firstItem ? $firstItem->product->name : 'N/A',
+                    'product' => $firstItem ? $firstItem->product->nama : 'N/A',
                     'items_count' => $order->items->count(),
-                    'quantity' => $order->items->sum('quantity'),
-                    'total_amount' => $order->total_amount,
+                    'quantity' => $order->items->sum('jumlah'),
+                    'total_amount' => $order->total,
                     'status' => $order->status,
-                    'payment_status' => $order->payment_status,
+                    'payment_status' => $order->status_bayar,
                     'created_at' => $order->created_at,
                 ];
             });

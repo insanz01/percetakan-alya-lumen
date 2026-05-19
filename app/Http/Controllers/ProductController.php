@@ -18,37 +18,37 @@ class ProductController extends Controller
         $query = Product::with('category');
 
         // Filter by category
-        if ($request->has('category_id')) {
-            $query->where('category_id', $request->input('category_id'));
+        if ($request->has('kategori_id')) {
+            $query->where('kategori_id', $request->input('kategori_id'));
         }
 
         // Filter by active status
         if ($request->has('active')) {
-            $query->where('is_active', $request->boolean('active'));
+            $query->where('aktif', $request->boolean('active'));
         }
 
         // Filter by best seller
         if ($request->has('best_seller')) {
-            $query->where('is_best_seller', $request->boolean('best_seller'));
+            $query->where('terlaris', $request->boolean('best_seller'));
         }
 
         // Filter by promo
         if ($request->has('promo')) {
-            $query->where('is_promo', $request->boolean('promo'));
+            $query->where('promo', $request->boolean('promo'));
         }
 
         // Filter by retail product
         if ($request->has('retail')) {
-            $query->where('is_retail_product', $request->boolean('retail'));
+            $query->where('produk_retail', $request->boolean('retail'));
         }
 
         // Search
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('short_description', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('deskripsi_singkat', 'like', "%{$search}%")
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
             });
         }
 
@@ -100,27 +100,27 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:500',
-            'images' => 'nullable|array',
-            'base_price' => 'required|numeric|min:0',
-            'sizes' => 'nullable|array',
-            'materials' => 'nullable|array',
-            'print_sides' => 'nullable|array',
-            'finishings' => 'nullable|array',
-            'quantity_tiers' => 'nullable|array',
-            'min_order_qty' => 'nullable|integer|min:1',
-            'estimated_days' => 'nullable|integer|min:1',
-            'weight_per_piece' => 'nullable|integer|min:0',
-            'allowed_file_types' => 'nullable|array',
-            'max_file_size' => 'nullable|integer|min:1',
+            'kategori_id' => 'required|exists:categories,id',
+            'nama' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'deskripsi_singkat' => 'nullable|string|max:500',
+            'gambar' => 'nullable|array',
+            'harga_dasar' => 'required|numeric|min:0',
+            'ukuran' => 'nullable|array',
+            'bahan' => 'nullable|array',
+            'sisi_cetak' => 'nullable|array',
+            'finishing' => 'nullable|array',
+            'tier_jumlah' => 'nullable|array',
+            'min_pesan' => 'nullable|integer|min:1',
+            'estimasi_hari' => 'nullable|integer|min:1',
+            'berat_per_pcs' => 'nullable|integer|min:0',
+            'tipe_file_diperbolehkan' => 'nullable|array',
+            'ukuran_file_maks' => 'nullable|integer|min:1',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->input('name'));
-        $data['is_active'] = true;
+        $data['slug'] = Str::slug($request->input('nama'));
+        $data['aktif'] = true;
 
         $product = Product::create($data);
 
@@ -139,31 +139,31 @@ class ProductController extends Controller
         }
 
         $this->validate($request, [
-            'category_id' => 'sometimes|exists:categories,id',
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:500',
-            'images' => 'nullable|array',
-            'base_price' => 'sometimes|numeric|min:0',
-            'sizes' => 'nullable|array',
-            'materials' => 'nullable|array',
-            'print_sides' => 'nullable|array',
-            'finishings' => 'nullable|array',
-            'quantity_tiers' => 'nullable|array',
-            'is_best_seller' => 'nullable|boolean',
-            'is_promo' => 'nullable|boolean',
-            'promo_percentage' => 'nullable|integer|min:0|max:100',
-            'min_order_qty' => 'nullable|integer|min:1',
-            'estimated_days' => 'nullable|integer|min:1',
-            'is_retail_product' => 'nullable|boolean',
-            'requires_design_file' => 'nullable|boolean',
-            'is_active' => 'nullable|boolean',
+            'kategori_id' => 'sometimes|exists:categories,id',
+            'nama' => 'sometimes|required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'deskripsi_singkat' => 'nullable|string|max:500',
+            'gambar' => 'nullable|array',
+            'harga_dasar' => 'sometimes|numeric|min:0',
+            'ukuran' => 'nullable|array',
+            'bahan' => 'nullable|array',
+            'sisi_cetak' => 'nullable|array',
+            'finishing' => 'nullable|array',
+            'tier_jumlah' => 'nullable|array',
+            'terlaris' => 'nullable|boolean',
+            'promo' => 'nullable|boolean',
+            'persen_promo' => 'nullable|integer|min:0|max:100',
+            'min_pesan' => 'nullable|integer|min:1',
+            'estimasi_hari' => 'nullable|integer|min:1',
+            'produk_retail' => 'nullable|boolean',
+            'butuh_file_desain' => 'nullable|boolean',
+            'aktif' => 'nullable|boolean',
         ]);
 
         $data = $request->all();
 
-        if ($request->has('name')) {
-            $data['slug'] = Str::slug($request->input('name'));
+        if ($request->has('nama')) {
+            $data['slug'] = Str::slug($request->input('nama'));
         }
 
         $product->update($data);
@@ -196,7 +196,7 @@ class ProductController extends Controller
             ->whereHas('category', function ($q) use ($categorySlug) {
                 $q->where('slug', $categorySlug);
             })
-            ->where('is_active', true)
+            ->where('aktif', true)
             ->get();
 
         return $this->successResponse($products);
@@ -218,10 +218,10 @@ class ProductController extends Controller
         }
 
         $products = Product::with('category')
-            ->where('is_active', true)
+            ->where('aktif', true)
             ->where(function ($q) use ($query) {
-                $q->where('name', 'like', "%{$query}%")
-                    ->orWhere('short_description', 'like', "%{$query}%");
+                $q->where('nama', 'like', "%{$query}%")
+                    ->orWhere('deskripsi_singkat', 'like', "%{$query}%");
             })
             ->limit(10)
             ->get();
@@ -240,28 +240,28 @@ class ProductController extends Controller
         $limit = $request->input('limit', 5);
 
         // Get product sales count from order_items
-        $productSales = OrderItem::select('product_id', DB::raw('COUNT(*) as order_count'), DB::raw('SUM(quantity) as total_sold'))
-            ->groupBy('product_id')
+        $productSales = OrderItem::select('produk_id', DB::raw('COUNT(*) as order_count'), DB::raw('SUM(jumlah) as total_sold'))
+            ->groupBy('produk_id')
             ->orderBy('total_sold', 'desc')
             ->limit($limit)
             ->get()
-            ->keyBy('product_id');
+            ->keyBy('produk_id');
 
         if ($productSales->isEmpty()) {
             // Fallback: get best seller products if no orders yet
             $products = Product::with('category')
-                ->where('is_active', true)
-                ->where('is_best_seller', true)
+                ->where('aktif', true)
+                ->where('terlaris', true)
                 ->limit($limit)
                 ->get()
                 ->map(function ($product) {
                     return [
                         'id' => $product->id,
-                        'name' => $product->name,
+                        'nama' => $product->nama,
                         'slug' => $product->slug,
-                        'image' => $product->images[0] ?? null,
-                        'base_price' => $product->base_price,
-                        'category' => $product->category ? $product->category->name : null,
+                        'gambar' => $product->gambar[0] ?? null,
+                        'harga_dasar' => $product->harga_dasar,
+                        'kategori' => $product->category ? $product->category->nama : null,
                         'sales_count' => 0,
                         'total_sold' => 0,
                     ];
@@ -279,11 +279,11 @@ class ProductController extends Controller
                 $sales = $productSales->get($product->id);
                 return [
                     'id' => $product->id,
-                    'name' => $product->name,
+                    'nama' => $product->nama,
                     'slug' => $product->slug,
-                    'image' => $product->images[0] ?? null,
-                    'base_price' => $product->base_price,
-                    'category' => $product->category ? $product->category->name : null,
+                    'gambar' => $product->gambar[0] ?? null,
+                    'harga_dasar' => $product->harga_dasar,
+                    'kategori' => $product->category ? $product->category->nama : null,
                     'sales_count' => $sales ? $sales->order_count : 0,
                     'total_sold' => $sales ? $sales->total_sold : 0,
                 ];

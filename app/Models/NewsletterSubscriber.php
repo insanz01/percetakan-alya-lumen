@@ -13,64 +13,64 @@ class NewsletterSubscriber extends Model
 
     protected $fillable = [
         'email',
-        'is_active',
-        'unsubscribe_token',
-        'subscribed_at',
-        'unsubscribed_at',
+        'aktif',
+        'token_berhenti',
+        'berlangganan_pada',
+        'berhenti_langganan_pada',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'subscribed_at' => 'datetime',
-        'unsubscribed_at' => 'datetime',
+        'aktif' => 'boolean',
+        'berlangganan_pada' => 'datetime',
+        'berhenti_langganan_pada' => 'datetime',
     ];
 
     /**
-     * Boot the model
+     * Inisialisasi model
      */
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($subscriber) {
-            if (empty($subscriber->unsubscribe_token)) {
-                $subscriber->unsubscribe_token = Str::random(64);
+            if (empty($subscriber->token_berhenti)) {
+                $subscriber->token_berhenti = Str::random(64);
             }
-            if (empty($subscriber->subscribed_at)) {
-                $subscriber->subscribed_at = Carbon::now();
+            if (empty($subscriber->berlangganan_pada)) {
+                $subscriber->berlangganan_pada = Carbon::now();
             }
         });
     }
 
     /**
-     * Scope for active subscribers
+     * Cakupan untuk pelanggan aktif
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('aktif', true);
     }
 
     /**
-     * Unsubscribe
+     * Berhenti berlangganan
      */
     public function unsubscribe(): void
     {
         $this->update([
-            'is_active' => false,
-            'unsubscribed_at' => Carbon::now(),
+            'aktif' => false,
+            'berhenti_langganan_pada' => Carbon::now(),
         ]);
     }
 
     /**
-     * Resubscribe
+     * Berlangganan kembali
      */
     public function resubscribe(): void
     {
         $this->update([
-            'is_active' => true,
-            'unsubscribed_at' => null,
-            'subscribed_at' => Carbon::now(),
-            'unsubscribe_token' => Str::random(64),
+            'aktif' => true,
+            'berhenti_langganan_pada' => null,
+            'berlangganan_pada' => Carbon::now(),
+            'token_berhenti' => Str::random(64),
         ]);
     }
 }

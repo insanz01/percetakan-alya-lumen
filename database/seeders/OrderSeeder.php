@@ -18,7 +18,7 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
-        $customers = User::where('role', 'customer')->get();
+        $customers = User::where('peran', 'customer')->get();
         $products = Product::all();
 
         if ($customers->isEmpty() || $products->isEmpty()) {
@@ -28,7 +28,7 @@ class OrderSeeder extends Seeder
 
         // Create sample orders for each customer
         foreach ($customers as $customer) {
-            $address = ShippingAddress::where('user_id', $customer->id)->first();
+            $address = ShippingAddress::where('pengguna_id', $customer->id)->first();
 
             if (!$address) {
                 continue;
@@ -37,51 +37,51 @@ class OrderSeeder extends Seeder
             // Order 1: Pending payment
             $this->createOrder($customer, $address, $products, [
                 'status' => 'pending_payment',
-                'payment_status' => 'pending',
+                'status_bayar' => 'pending',
                 'created_at' => Carbon::now()->subDays(1),
             ]);
 
             // Order 2: In production
             $this->createOrder($customer, $address, $products, [
                 'status' => 'in_production',
-                'payment_status' => 'paid',
+                'status_bayar' => 'paid',
                 'created_at' => Carbon::now()->subDays(3),
             ]);
 
             // Order 3: Delivered
             $this->createOrder($customer, $address, $products, [
                 'status' => 'delivered',
-                'payment_status' => 'paid',
+                'status_bayar' => 'paid',
                 'created_at' => Carbon::now()->subDays(10),
             ]);
         }
 
         // Create additional sample orders
         $customer = $customers->first();
-        $address = ShippingAddress::where('user_id', $customer->id)->first();
+        $address = ShippingAddress::where('pengguna_id', $customer->id)->first();
 
         if ($customer && $address) {
             // Order: File verification
             $this->createOrder($customer, $address, $products, [
                 'status' => 'file_verification',
-                'payment_status' => 'paid',
+                'status_bayar' => 'paid',
                 'created_at' => Carbon::now()->subDays(2),
             ]);
 
             // Order: Shipped
             $this->createOrder($customer, $address, $products, [
                 'status' => 'shipped',
-                'payment_status' => 'paid',
+                'status_bayar' => 'paid',
                 'created_at' => Carbon::now()->subDays(5),
-                'tracking_number' => 'JNE123456789',
+                'nomor_resi' => 'JNE123456789',
             ]);
 
             // Order: Cancelled
             $this->createOrder($customer, $address, $products, [
                 'status' => 'cancelled',
-                'payment_status' => 'refunded',
+                'status_bayar' => 'refunded',
                 'created_at' => Carbon::now()->subDays(7),
-                'notes' => 'Dibatalkan oleh pelanggan',
+                'catatan' => 'Dibatalkan oleh pelanggan',
             ]);
         }
 
@@ -105,15 +105,15 @@ class OrderSeeder extends Seeder
             $quantity = [100, 250, 500][rand(0, 2)];
 
             // Get price from quantity tiers
-            $tiers = is_string($product->quantity_tiers)
-                ? json_decode($product->quantity_tiers, true)
-                : $product->quantity_tiers;
+            $tiers = is_string($product->tier_jumlah)
+                ? json_decode($product->tier_jumlah, true)
+                : $product->tier_jumlah;
 
             if (empty($tiers)) {
-                $tiers = [['minQty' => 1, 'maxQty' => 99999, 'pricePerUnit' => $product->base_price]];
+                $tiers = [['minQty' => 1, 'maxQty' => 99999, 'pricePerUnit' => $product->harga_dasar]];
             }
 
-            $unitPrice = $product->base_price;
+            $unitPrice = $product->harga_dasar;
             foreach ($tiers as $tier) {
                 if ($quantity >= $tier['minQty'] && $quantity <= $tier['maxQty']) {
                     $unitPrice = $tier['pricePerUnit'];
@@ -125,26 +125,26 @@ class OrderSeeder extends Seeder
             $subtotal += $totalPrice;
 
             // Get sizes, materials, print_sides from product
-            $sizes = is_string($product->sizes) ? json_decode($product->sizes, true) : $product->sizes;
-            $materials = is_string($product->materials) ? json_decode($product->materials, true) : $product->materials;
-            $printSides = is_string($product->print_sides) ? json_decode($product->print_sides, true) : $product->print_sides;
+            $sizes = is_string($product->ukuran) ? json_decode($product->ukuran, true) : $product->ukuran;
+            $materials = is_string($product->bahan) ? json_decode($product->bahan, true) : $product->bahan;
+            $printSides = is_string($product->sisi_cetak) ? json_decode($product->sisi_cetak, true) : $product->sisi_cetak;
 
             $items[] = [
-                'product_id' => $product->id,
-                'size_id' => $sizes[0]['id'] ?? null,
-                'size_name' => $sizes[0]['name'] ?? 'Standard',
-                'material_id' => $materials[0]['id'] ?? null,
-                'material_name' => ($materials[0]['name'] ?? 'Standard') . ' ' . ($materials[0]['weight'] ?? ''),
-                'print_side_id' => $printSides[0]['id'] ?? 'side-1',
-                'print_side_name' => $printSides[0]['name'] ?? '1 Sisi',
+                'produk_id' => $product->id,
+                'ukuran_id' => $sizes[0]['id'] ?? null,
+                'nama_ukuran' => $sizes[0]['name'] ?? 'Standard',
+                'bahan_id' => $materials[0]['id'] ?? null,
+                'nama_bahan' => ($materials[0]['name'] ?? 'Standard') . ' ' . ($materials[0]['weight'] ?? ''),
+                'sisi_cetak_id' => $printSides[0]['id'] ?? 'side-1',
+                'nama_sisi_cetak' => $printSides[0]['name'] ?? '1 Sisi',
                 'finishing_ids' => [],
-                'finishing_names' => [],
-                'quantity' => $quantity,
-                'unit_price' => $unitPrice,
-                'total_price' => $totalPrice,
-                'uploaded_file_name' => 'design-file-' . Str::random(8) . '.pdf',
-                'uploaded_file_url' => 'https://storage.printmaster.id/uploads/' . Str::random(12) . '.pdf',
-                'uploaded_file_status' => 'approved',
+                'nama_finishing' => [],
+                'jumlah' => $quantity,
+                'harga_satuan' => $unitPrice,
+                'harga_total' => $totalPrice,
+                'nama_file_diunggah' => 'design-file-' . Str::random(8) . '.pdf',
+                'url_file_diunggah' => 'https://storage.printmaster.id/uploads/' . Str::random(12) . '.pdf',
+                'status_file_diunggah' => 'approved',
                 'status' => $options['status'] ?? 'pending_payment',
             ];
         }
@@ -157,23 +157,23 @@ class OrderSeeder extends Seeder
         $shippingProviders = ['JNE REG', 'JNE YES', 'SiCepat REG', 'Anteraja'];
 
         $order = Order::create([
-            'user_id' => $customer->id,
-            'order_number' => $orderNumber,
-            'shipping_address_id' => $address->id,
-            'shipping_method' => $shippingProviders[rand(0, 3)],
-            'shipping_provider' => explode(' ', $shippingProviders[rand(0, 3)])[0],
-            'tracking_number' => $options['tracking_number'] ?? null,
-            'payment_method' => $paymentMethods[rand(0, 2)],
-            'payment_type' => $paymentMethods[rand(0, 2)],
+            'pengguna_id' => $customer->id,
+            'nomor_pesanan' => $orderNumber,
+            'alamat_pengiriman_id' => $address->id,
+            'metode_pengiriman' => $shippingProviders[rand(0, 3)],
+            'kurir' => explode(' ', $shippingProviders[rand(0, 3)])[0],
+            'nomor_resi' => $options['nomor_resi'] ?? null,
+            'metode_pembayaran' => $paymentMethods[rand(0, 2)],
+            'tipe_pembayaran' => $paymentMethods[rand(0, 2)],
             'subtotal' => $subtotal,
-            'shipping_cost' => $shippingCost,
-            'discount' => $discount,
-            'total_amount' => $totalAmount,
+            'biaya_kirim' => $shippingCost,
+            'diskon' => $discount,
+            'total' => $totalAmount,
             'status' => $options['status'] ?? 'pending_payment',
-            'payment_status' => $options['payment_status'] ?? 'pending',
-            'payment_deadline' => Carbon::now()->addDays(1),
-            'paid_at' => ($options['payment_status'] ?? 'pending') === 'paid' ? Carbon::now() : null,
-            'notes' => $options['notes'] ?? null,
+            'status_bayar' => $options['status_bayar'] ?? 'pending',
+            'batas_bayar' => Carbon::now()->addDays(1),
+            'dibayar_pada' => ($options['status_bayar'] ?? 'pending') === 'paid' ? Carbon::now() : null,
+            'catatan' => $options['catatan'] ?? null,
             'created_at' => $options['created_at'] ?? Carbon::now(),
             'updated_at' => $options['created_at'] ?? Carbon::now(),
         ]);
@@ -181,22 +181,22 @@ class OrderSeeder extends Seeder
         // Create order items
         foreach ($items as $item) {
             OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'size_id' => $item['size_id'],
-                'size_name' => $item['size_name'],
-                'material_id' => $item['material_id'],
-                'material_name' => $item['material_name'],
-                'print_side_id' => $item['print_side_id'],
-                'print_side_name' => $item['print_side_name'],
+                'pesanan_id' => $order->id,
+                'produk_id' => $item['produk_id'],
+                'ukuran_id' => $item['ukuran_id'],
+                'nama_ukuran' => $item['nama_ukuran'],
+                'bahan_id' => $item['bahan_id'],
+                'nama_bahan' => $item['nama_bahan'],
+                'sisi_cetak_id' => $item['sisi_cetak_id'],
+                'nama_sisi_cetak' => $item['nama_sisi_cetak'],
                 'finishing_ids' => $item['finishing_ids'],
-                'finishing_names' => $item['finishing_names'],
-                'quantity' => $item['quantity'],
-                'unit_price' => $item['unit_price'],
-                'total_price' => $item['total_price'],
-                'uploaded_file_name' => $item['uploaded_file_name'],
-                'uploaded_file_url' => $item['uploaded_file_url'],
-                'uploaded_file_status' => $item['uploaded_file_status'],
+                'nama_finishing' => $item['nama_finishing'],
+                'jumlah' => $item['jumlah'],
+                'harga_satuan' => $item['harga_satuan'],
+                'harga_total' => $item['harga_total'],
+                'nama_file_diunggah' => $item['nama_file_diunggah'],
+                'url_file_diunggah' => $item['url_file_diunggah'],
+                'status_file_diunggah' => $item['status_file_diunggah'],
                 'status' => $item['status'],
             ]);
         }

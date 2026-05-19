@@ -11,45 +11,45 @@ class Promo extends Model
     use HasUuids;
 
     protected $fillable = [
-        'code',
-        'description',
-        'type',
-        'discount',
-        'min_purchase',
-        'max_discount',
-        'usage_limit',
-        'usage_count',
-        'start_date',
-        'end_date',
-        'is_active',
+        'kode',
+        'deskripsi',
+        'tipe',
+        'diskon',
+        'min_beli',
+        'maks_diskon',
+        'batas_penggunaan',
+        'jumlah_penggunaan',
+        'tanggal_mulai',
+        'tanggal_berakhir',
+        'aktif',
     ];
 
     protected $casts = [
-        'discount' => 'decimal:2',
-        'min_purchase' => 'decimal:2',
-        'max_discount' => 'decimal:2',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
-        'is_active' => 'boolean',
+        'diskon' => 'decimal:2',
+        'min_beli' => 'decimal:2',
+        'maks_diskon' => 'decimal:2',
+        'tanggal_mulai' => 'datetime',
+        'tanggal_berakhir' => 'datetime',
+        'aktif' => 'boolean',
     ];
 
     public function isValid()
     {
         $now = Carbon::now();
 
-        if (!$this->is_active) {
+        if (!$this->aktif) {
             return false;
         }
 
-        if ($this->start_date && $now->lt($this->start_date)) {
+        if ($this->tanggal_mulai && $now->lt($this->tanggal_mulai)) {
             return false;
         }
 
-        if ($this->end_date && $now->gt($this->end_date)) {
+        if ($this->tanggal_berakhir && $now->gt($this->tanggal_berakhir)) {
             return false;
         }
 
-        if ($this->usage_limit && $this->usage_count >= $this->usage_limit) {
+        if ($this->batas_penggunaan && $this->jumlah_penggunaan >= $this->batas_penggunaan) {
             return false;
         }
 
@@ -58,18 +58,18 @@ class Promo extends Model
 
     public function calculateDiscount($amount)
     {
-        if ($amount < $this->min_purchase) {
+        if ($amount < $this->min_beli) {
             return 0;
         }
 
-        if ($this->type === 'percentage') {
-            $discount = $amount * ($this->discount / 100);
+        if ($this->tipe === 'percentage') {
+            $discount = $amount * ($this->diskon / 100);
         } else {
-            $discount = $this->discount;
+            $discount = $this->diskon;
         }
 
-        if ($this->max_discount && $discount > $this->max_discount) {
-            $discount = $this->max_discount;
+        if ($this->maks_diskon && $discount > $this->maks_diskon) {
+            $discount = $this->maks_diskon;
         }
 
         return $discount;

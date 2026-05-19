@@ -10,10 +10,10 @@ return new class extends Migration {
         Schema::create('newsletter_subscribers', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('email')->unique();
-            $table->boolean('is_active')->default(true);
-            $table->string('unsubscribe_token')->unique();
-            $table->timestamp('subscribed_at');
-            $table->timestamp('unsubscribed_at')->nullable();
+            $table->boolean('aktif')->default(true);
+            $table->string('token_berhenti')->unique();
+            $table->timestamp('berlangganan_pada');
+            $table->timestamp('berhenti_langganan_pada')->nullable();
             $table->timestamps();
         });
     }
