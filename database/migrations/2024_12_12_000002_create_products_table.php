@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->text('deskripsi')->nullable();
             $table->string('deskripsi_singkat')->nullable();
             $table->json('gambar')->nullable();
+            $table->decimal('harga_dasar', 15, 2)->default(0);
 
             $table->json('ukuran')->nullable();
             $table->json('bahan')->nullable();

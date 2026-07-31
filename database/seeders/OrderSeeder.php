@@ -143,7 +143,7 @@ class OrderSeeder extends Seeder
                 'harga_satuan' => $unitPrice,
                 'harga_total' => $totalPrice,
                 'nama_file_diunggah' => 'design-file-' . Str::random(8) . '.pdf',
-                'url_file_diunggah' => 'https://storage.printmaster.id/uploads/' . Str::random(12) . '.pdf',
+                'tautan_file_diunggah' => 'https://storage.printmaster.id/uploads/' . Str::random(12) . '.pdf',
                 'status_file_diunggah' => 'approved',
                 'status' => $options['status'] ?? 'pending_payment',
             ];
@@ -195,7 +195,7 @@ class OrderSeeder extends Seeder
                 'harga_satuan' => $item['harga_satuan'],
                 'harga_total' => $item['harga_total'],
                 'nama_file_diunggah' => $item['nama_file_diunggah'],
-                'url_file_diunggah' => $item['url_file_diunggah'],
+                'tautan_file_diunggah' => $item['tautan_file_diunggah'],
                 'status_file_diunggah' => $item['status_file_diunggah'],
                 'status' => $item['status'],
             ]);

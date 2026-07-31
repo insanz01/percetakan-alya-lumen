@@ -51,7 +51,7 @@ class Authenticate
             ], 401);
         }
 
-        if (!$user->is_active) {
+        if (!$user->aktif) {
             return response()->json([
                 'success' => false,
                 'message' => 'Akun tidak aktif'

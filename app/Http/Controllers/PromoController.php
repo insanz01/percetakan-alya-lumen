@@ -106,7 +106,7 @@ class PromoController extends Controller
 
         return $this->successResponse([
             'promo' => $promo,
-            'discount' => $discount,
+            'diskon' => $discount,
             'final_amount' => $amount - $discount,
         ], 'Kode promo valid');
     }

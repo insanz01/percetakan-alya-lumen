@@ -26,7 +26,7 @@ class OrderItem extends Model
         'harga_satuan',
         'harga_total',
         'nama_file_diunggah',
-        'url_file_diunggah',
+        'tautan_file_diunggah',
         'status_file_diunggah',
         'status',
         'catatan',
@@ -41,11 +41,11 @@ class OrderItem extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'pesanan_id');
     }
 
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'produk_id');
     }
 }

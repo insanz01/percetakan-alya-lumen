@@ -83,8 +83,8 @@ class FileUploadController extends Controller
             'nama_asli' => $file->getClientOriginalName(),
             'nama_disimpan' => $storedName,
             'jalur' => $fullPath,
-            'disk' => $disk,
-            'tipe_mime' => $file->getMimeType(),
+            'penyimpanan' => $disk,
+            'jenis_mime' => $file->getMimeType(),
             'ukuran' => $file->getSize(),
             'tipe' => $type,
             'terkait_id' => $request->input('terkait_id'),
@@ -96,7 +96,7 @@ class FileUploadController extends Controller
             'nama_asli' => $uploadedFile->nama_asli,
             'ukuran' => $uploadedFile->ukuran,
             'human_size' => $uploadedFile->human_size,
-            'tipe_mime' => $uploadedFile->tipe_mime,
+            'jenis_mime' => $uploadedFile->jenis_mime,
             'url' => $uploadedFile->url,
         ], 'File berhasil diupload');
     }
@@ -117,7 +117,7 @@ class FileUploadController extends Controller
             'nama_asli' => $file->nama_asli,
             'ukuran' => $file->ukuran,
             'human_size' => $file->human_size,
-            'tipe_mime' => $file->tipe_mime,
+            'jenis_mime' => $file->jenis_mime,
             'tipe' => $file->tipe,
             'url' => $file->url,
             'created_at' => $file->created_at,
@@ -135,7 +135,7 @@ class FileUploadController extends Controller
             return response()->json(['success' => false, 'message' => 'File not found'], 404);
         }
 
-        $storage = Storage::disk($file->disk);
+        $storage = Storage::disk($file->penyimpanan);
 
         if (!$storage->exists($file->jalur)) {
             return response()->json(['success' => false, 'message' => 'File not found on storage'], 404);
@@ -146,7 +146,7 @@ class FileUploadController extends Controller
 
         // Return download response with original filename and proper headers
         return response()->download($fullPath, $file->nama_asli, [
-            'Content-Type' => $file->tipe_mime,
+            'Content-Type' => $file->jenis_mime,
         ]);
     }
 
@@ -171,8 +171,8 @@ class FileUploadController extends Controller
         }
 
         // Delete from storage
-        if (Storage::disk($file->disk)->exists($file->jalur)) {
-            Storage::disk($file->disk)->delete($file->jalur);
+        if (Storage::disk($file->penyimpanan)->exists($file->jalur)) {
+            Storage::disk($file->penyimpanan)->delete($file->jalur);
         }
 
         // Delete database record
@@ -202,7 +202,7 @@ class FileUploadController extends Controller
                 'nama_asli' => $file->nama_asli,
                 'ukuran' => $file->ukuran,
                 'human_size' => $file->human_size,
-                'tipe_mime' => $file->tipe_mime,
+                'jenis_mime' => $file->jenis_mime,
                 'tipe' => $file->tipe,
                 'url' => $file->url,
                 'created_at' => $file->created_at,

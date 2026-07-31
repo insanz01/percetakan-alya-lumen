@@ -15,8 +15,8 @@ class UploadedFile extends Model
         'nama_asli',
         'nama_disimpan',
         'jalur',
-        'disk',
-        'tipe_mime',
+        'penyimpanan',
+        'jenis_mime',
         'ukuran',
         'tipe',
         'terkait_id',
@@ -32,7 +32,7 @@ class UploadedFile extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'pengguna_id');
     }
 
     /**
@@ -48,7 +48,7 @@ class UploadedFile extends Model
      */
     public function getUrlAttribute(): string
     {
-        if ($this->disk === 'public') {
+        if ($this->penyimpanan === 'public') {
             return url('storage/' . $this->jalur);
         }
 
@@ -78,7 +78,7 @@ class UploadedFile extends Model
      */
     public function isImage(): bool
     {
-        return str_starts_with($this->tipe_mime, 'image/');
+        return str_starts_with($this->jenis_mime, 'image/');
     }
 
     /**
@@ -86,7 +86,7 @@ class UploadedFile extends Model
      */
     public function isPdf(): bool
     {
-        return $this->tipe_mime === 'application/pdf';
+        return $this->jenis_mime === 'application/pdf';
     }
 
     /**

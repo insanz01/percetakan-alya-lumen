@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\Promo;
+use App\Models\ShippingAddress;
+use App\Services\ShippingCalculator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -99,65 +103,181 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'pengguna_id' => 'required|exists:users,id',
             'alamat_pengiriman_id' => 'required|exists:shipping_addresses,id',
-            'metode_pengiriman' => 'required|string',
-            'kurir' => 'nullable|string',
+            'metode_pengiriman_id' => 'required|string',
             'metode_pembayaran' => 'required|string',
             'tipe_pembayaran' => 'nullable|string',
-            'subtotal' => 'required|numeric|min:0',
-            'biaya_kirim' => 'required|numeric|min:0',
-            'diskon' => 'nullable|numeric|min:0',
+            'kode_promo' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.produk_id' => 'required|exists:products,id',
             'items.*.jumlah' => 'required|integer|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
-            'items.*.harga_total' => 'required|numeric|min:0',
+            'items.*.ukuran_id' => 'nullable|string',
+            'items.*.bahan_id' => 'nullable|string',
+            'items.*.sisi_cetak_id' => 'nullable|string',
+            'items.*.finishing_ids' => 'nullable|array',
+            'items.*.lebar_kustom' => 'nullable|integer|min:1',
+            'items.*.tinggi_kustom' => 'nullable|integer|min:1',
         ]);
 
-        $data = $request->only([
-            'pengguna_id',
-            'alamat_pengiriman_id',
-            'metode_pengiriman',
-            'kurir',
-            'metode_pembayaran',
-            'tipe_pembayaran',
-            'subtotal',
-            'biaya_kirim',
-            'diskon',
-            'catatan'
-        ]);
+        // The address must belong to the authenticated user — never trust it
+        // just because the id exists in the table.
+        $address = ShippingAddress::where('pengguna_id', $request->auth->id)
+            ->find($request->input('alamat_pengiriman_id'));
 
-        $data['nomor_pesanan'] = Order::generateOrderNumber();
-        $data['total'] = $data['subtotal'] + $data['biaya_kirim'] - ($data['diskon'] ?? 0);
-        $data['status'] = 'pending_payment';
-        $data['status_bayar'] = 'pending';
-        $data['batas_bayar'] = Carbon::now()->addHours(24);
+        if (!$address) {
+            return $this->errorResponse('Alamat pengiriman tidak ditemukan', 422);
+        }
 
-        $order = Order::create($data);
+        // Never trust client-supplied prices, shipping cost, promo discount,
+        // or user id — recompute everything server-side from the actual
+        // product/promo/shipping-rate records.
+        $subtotal = 0;
+        $totalWeightGrams = 0;
+        $itemsData = [];
 
-        // Create order items
         foreach ($request->input('items') as $item) {
-            OrderItem::create([
-                'pesanan_id' => $order->id,
-                'produk_id' => $item['produk_id'],
+            $product = Product::find($item['produk_id']);
+            if (!$product) {
+                return $this->errorResponse('Produk tidak ditemukan: ' . $item['produk_id'], 422);
+            }
+
+            $jumlah = (int) $item['jumlah'];
+
+            $tiers = $product->tier_jumlah ?? [];
+            $tier = collect($tiers)->first(
+                fn ($t) => $jumlah >= $t['minQty'] && $jumlah <= $t['maxQty']
+            );
+            $baseUnitPrice = $tier['pricePerUnit'] ?? ($tiers[0]['pricePerUnit'] ?? $product->harga_dasar);
+
+            $sizes = $product->ukuran ?? [];
+            $size = collect($sizes)->firstWhere('id', $item['ukuran_id'] ?? null);
+            $sizeMultiplier = $size['priceMultiplier'] ?? 1;
+
+            if (
+                $size && str_contains(strtolower($size['name'] ?? ''), 'custom')
+                && !empty($item['lebar_kustom']) && !empty($item['tinggi_kustom'])
+            ) {
+                $baseSize = $sizes[0] ?? null;
+                $baseArea = ($baseSize['width'] ?? 148) * ($baseSize['height'] ?? 210);
+                $customArea = $item['lebar_kustom'] * $item['tinggi_kustom'];
+                $sizeMultiplier = max(1, $customArea / $baseArea);
+            }
+
+            $materials = $product->bahan ?? [];
+            $material = collect($materials)->firstWhere('id', $item['bahan_id'] ?? null);
+            $materialPrice = $material['pricePerUnit'] ?? 0;
+
+            $printSides = $product->sisi_cetak ?? [];
+            $printSide = collect($printSides)->firstWhere('id', $item['sisi_cetak_id'] ?? null);
+            $printSideMultiplier = $printSide['priceMultiplier'] ?? 1;
+
+            $finishingIds = $item['finishing_ids'] ?? [];
+            $finishingTotal = 0;
+            $finishingNames = [];
+            foreach ($product->finishing ?? [] as $f) {
+                if (in_array($f['id'], $finishingIds)) {
+                    $finishingTotal += $f['price'];
+                    $finishingNames[] = $f['name'];
+                }
+            }
+
+            $unitPrice = ($baseUnitPrice * $sizeMultiplier * $printSideMultiplier) + $materialPrice + $finishingTotal;
+
+            if ($product->promo && $product->persen_promo) {
+                $unitPrice -= $unitPrice * ($product->persen_promo / 100);
+            }
+
+            $totalPrice = $unitPrice * $jumlah;
+            $subtotal += $totalPrice;
+            $totalWeightGrams += ($product->berat_per_pcs ?? 0) * $jumlah;
+
+            $itemsData[] = [
+                'produk_id' => $product->id,
                 'ukuran_id' => $item['ukuran_id'] ?? null,
-                'nama_ukuran' => $item['nama_ukuran'] ?? null,
+                'nama_ukuran' => $size['name'] ?? null,
                 'bahan_id' => $item['bahan_id'] ?? null,
-                'nama_bahan' => $item['nama_bahan'] ?? null,
+                'nama_bahan' => $material['name'] ?? null,
                 'sisi_cetak_id' => $item['sisi_cetak_id'] ?? null,
-                'nama_sisi_cetak' => $item['nama_sisi_cetak'] ?? null,
-                'finishing_ids' => $item['finishing_ids'] ?? null,
-                'nama_finishing' => $item['nama_finishing'] ?? null,
+                'nama_sisi_cetak' => $printSide['name'] ?? null,
+                'finishing_ids' => $finishingIds,
+                'nama_finishing' => $finishingNames,
                 'lebar_kustom' => $item['lebar_kustom'] ?? null,
                 'tinggi_kustom' => $item['tinggi_kustom'] ?? null,
-                'jumlah' => $item['jumlah'],
-                'harga_satuan' => $item['harga_satuan'],
-                'harga_total' => $item['harga_total'],
+                'jumlah' => $jumlah,
+                'harga_satuan' => round($unitPrice, 2),
+                'harga_total' => round($totalPrice, 2),
                 'nama_file_diunggah' => $item['nama_file_diunggah'] ?? null,
-                'url_file_diunggah' => $item['url_file_diunggah'] ?? null,
+                'tautan_file_diunggah' => $item['tautan_file_diunggah'] ?? null,
+            ];
+        }
+
+        // Re-quote the shipping cost server-side from the id the client picked
+        // (e.g. "jne_reg") — never trust a client-supplied amount.
+        $weightKg = max(1, ceil($totalWeightGrams / 1000));
+        [$providerCode, $serviceCode] = array_pad(
+            explode('_', $request->input('metode_pengiriman_id'), 2),
+            2,
+            null
+        );
+        $shippingOption = ShippingCalculator::calculate($providerCode, $serviceCode, $weightKg, $address->provinsi);
+
+        if (!$shippingOption) {
+            return $this->errorResponse('Metode pengiriman tidak valid', 422);
+        }
+
+        $biayaKirim = $shippingOption['cost'];
+
+        // Re-validate the promo code server-side and recompute its discount —
+        // never trust a client-supplied discount amount.
+        $diskon = 0;
+        $promo = null;
+
+        if ($request->filled('kode_promo')) {
+            $promo = Promo::where('kode', strtoupper($request->input('kode_promo')))->first();
+
+            if (!$promo || !$promo->isValid()) {
+                return $this->errorResponse('Kode promo tidak valid atau sudah kadaluarsa', 422);
+            }
+
+            if ($subtotal < $promo->min_beli) {
+                return $this->errorResponse(
+                    'Minimal pembelian Rp ' . number_format($promo->min_beli, 0, ',', '.') . ' untuk kode promo ini',
+                    422
+                );
+            }
+
+            $diskon = $promo->calculateDiscount($subtotal);
+        }
+
+        $total = $subtotal + $biayaKirim - $diskon;
+
+        $order = Order::create([
+            'nomor_pesanan' => Order::generateOrderNumber(),
+            'pengguna_id' => $request->auth->id,
+            'alamat_pengiriman_id' => $address->id,
+            'metode_pengiriman' => $shippingOption['service'],
+            'kurir' => $shippingOption['provider'],
+            'metode_pembayaran' => $request->input('metode_pembayaran'),
+            'tipe_pembayaran' => $request->input('tipe_pembayaran'),
+            'subtotal' => $subtotal,
+            'biaya_kirim' => $biayaKirim,
+            'diskon' => $diskon,
+            'total' => $total,
+            'status' => 'pending_payment',
+            'status_bayar' => 'pending',
+            'batas_bayar' => Carbon::now()->addHours(24),
+            'catatan' => $request->input('catatan'),
+        ]);
+
+        foreach ($itemsData as $data) {
+            OrderItem::create(array_merge($data, [
+                'pesanan_id' => $order->id,
                 'status' => 'pending_payment',
-            ]);
+            ]));
+        }
+
+        if ($promo) {
+            $promo->increment('jumlah_penggunaan');
         }
 
         return $this->successResponse(
@@ -224,12 +344,12 @@ class OrderController extends Controller
     }
 
     /**
-     * Get user orders
+     * Get orders for the currently authenticated user
      */
-    public function userOrders(Request $request, $userId)
+    public function userOrders(Request $request)
     {
         $orders = Order::with(['items.product'])
-            ->where('pengguna_id', $userId)
+            ->where('pengguna_id', $request->auth->id)
             ->orderBy('created_at', 'desc')
             ->get();
 

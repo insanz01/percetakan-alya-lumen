@@ -18,14 +18,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'email',
         'password',
         'telepon',
-        'avatar',
+        'foto_profil',
         'peran',
         'aktif',
     ];
 
     protected $hidden = [
         'password',
-        'remember_token',
+        'token_ingat_saya',
     ];
 
     protected $casts = [
@@ -35,12 +35,12 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public function addresses()
     {
-        return $this->hasMany(ShippingAddress::class);
+        return $this->hasMany(ShippingAddress::class, 'pengguna_id');
     }
 
     public function orders()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Order::class, 'pengguna_id');
     }
 
     public function isAdmin()

@@ -306,6 +306,7 @@ class ProductSeeder extends Seeder
             ]);
         }
 
+        if ($banner) {
             Product::create([
                 'kategori_id' => $banner->id,
                 'nama' => 'Spanduk Indoor',

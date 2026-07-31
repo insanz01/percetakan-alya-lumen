@@ -127,10 +127,10 @@ class AuthController extends Controller
         $this->validate($request, [
             'nama' => 'sometimes|required|string|max:255',
             'telepon' => 'nullable|string',
-            'avatar' => 'nullable|string',
+            'foto_profil' => 'nullable|string',
         ]);
 
-        $user->update($request->only(['nama', 'telepon', 'avatar']));
+        $user->update($request->only(['nama', 'telepon', 'foto_profil']));
 
         return $this->successResponse($user, 'Profil berhasil diupdate');
     }

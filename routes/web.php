@@ -110,7 +110,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     // ADMIN ROUTES
     // ==========================================
 
-    $router->group(['prefix' => 'admin', 'middleware' => 'auth'], function () use ($router) {
+    $router->group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function () use ($router) {
 
         // Dashboard
         $router->get('/dashboard/stats', 'OrderController@statistics');
