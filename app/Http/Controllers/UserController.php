@@ -14,7 +14,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with('addresses');
+        $query = User::with('addresses')->withCount('orders');
 
         // Filter by role
         if ($request->has('peran')) {
