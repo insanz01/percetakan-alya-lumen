@@ -33,7 +33,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'brosur-a5-premium',
                 'deskripsi' => 'Brosur A5 dengan finishing premium untuk promosi bisnis Anda. Tersedia berbagai pilihan kertas mulai dari Art Paper hingga Art Carton dengan gramasi beragam. Cocok untuk materi promosi, menu restoran, dan company profile ringkas.',
                 'deskripsi_singkat' => 'Brosur A5 dengan finishing premium',
-                'gambar' => ['https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=600'],
+                'gambar' => ['/gambar/brosur/1.jpeg'],
                 'harga_dasar' => 500,
                 'ukuran' => [
                     ['id' => 'size-a5', 'name' => 'A5', 'dimensions' => '148 x 210 mm', 'priceMultiplier' => 1],
@@ -79,7 +79,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'flyer-lipat-3',
                 'deskripsi' => 'Flyer dengan lipatan 3 (tri-fold) ideal untuk brosur produk, menu restoran, atau panduan informasi. Tampilan profesional dengan space yang luas untuk konten.',
                 'deskripsi_singkat' => 'Flyer lipat 3 profesional',
-                'gambar' => ['https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=600'],
+                'gambar' => ['/gambar/brosur/2.jpeg'],
                 'harga_dasar' => 800,
                 'ukuran' => [
                     ['id' => 'size-a4', 'name' => 'A4', 'dimensions' => '210 x 297 mm (lipat)', 'priceMultiplier' => 1],
@@ -121,7 +121,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'kartu-nama-standar',
                 'deskripsi' => 'Kartu nama ukuran standar (9x5.5 cm) dengan berbagai pilihan kertas. Tampilkan profesionalitas bisnis Anda dengan kartu nama berkualitas.',
                 'deskripsi_singkat' => 'Kartu nama profesional ukuran standar',
-                'gambar' => ['https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600'],
+                'gambar' => ['/gambar/kartu_nama/1.jpeg'],
                 'harga_dasar' => 100,
                 'ukuran' => [
                     ['id' => 'size-standar', 'name' => 'Standar', 'dimensions' => '90 x 55 mm', 'priceMultiplier' => 1],
@@ -164,7 +164,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'kartu-nama-premium',
                 'deskripsi' => 'Kartu nama dengan material dan finishing premium. Pilihan kertas eksklusif seperti Kraft, Linen, atau Soft Touch dengan berbagai opsi finishing mewah.',
                 'deskripsi_singkat' => 'Kartu nama eksklusif dengan finishing premium',
-                'gambar' => ['https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600'],
+                'gambar' => ['/gambar/kartu_nama/2.jpeg'],
                 'harga_dasar' => 200,
                 'ukuran' => [
                     ['id' => 'size-standar', 'name' => 'Standar', 'dimensions' => '90 x 55 mm', 'priceMultiplier' => 1],
@@ -208,7 +208,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'x-banner-60x160',
                 'deskripsi' => 'X-Banner ukuran 60x160 cm dengan tiang aluminium. Mudah dipasang dan dibawa kemana saja. Ideal untuk pameran, toko, dan promosi indoor.',
                 'deskripsi_singkat' => 'X-Banner portable dengan tiang',
-                'gambar' => ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600'],
+                'gambar' => ['/gambar/banner/1.jpeg'],
                 'harga_dasar' => 50000,
                 'ukuran' => [
                     ['id' => 'size-60x160', 'name' => '60 x 160 cm', 'dimensions' => '60 x 160 cm', 'priceMultiplier' => 1],
@@ -242,7 +242,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'roll-up-banner',
                 'deskripsi' => 'Roll Up Banner dengan sistem gulung otomatis. Profesional, mudah dibawa, dan tahan lama. Pilihan tepat untuk presentasi dan pameran.',
                 'deskripsi_singkat' => 'Banner gulung otomatis premium',
-                'gambar' => ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600'],
+                'gambar' => ['/gambar/banner/2.jpeg'],
                 'harga_dasar' => 150000,
                 'ukuran' => [
                     ['id' => 'size-80x200', 'name' => '80 x 200 cm', 'dimensions' => '80 x 200 cm', 'priceMultiplier' => 1],
@@ -275,7 +275,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'spanduk-outdoor',
                 'deskripsi' => 'Spanduk untuk promosi outdoor dengan bahan flexi tahan cuaca. Dilengkapi mata ayam dan tali. Tahan sinar UV dan hujan.',
                 'deskripsi_singkat' => 'Spanduk tahan cuaca dengan mata ayam',
-                'gambar' => ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600'],
+                'gambar' => ['/gambar/banner/3.jpeg'],
                 'harga_dasar' => 25000,
                 'ukuran' => [
                     ['id' => 'size-per-m2', 'name' => 'Per m²', 'dimensions' => 'Harga per meter persegi', 'priceMultiplier' => 1],
@@ -313,7 +313,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'spanduk-indoor',
                 'deskripsi' => 'Spanduk indoor dengan bahan premium untuk tampilan di dalam ruangan. Warna cetak tajam dan tahan lama, cocok untuk dekorasi toko, pameran dalam ruangan, dan backdrop acara.',
                 'deskripsi_singkat' => 'Spanduk indoor berkualitas untuk dekorasi dalam ruangan',
-                'gambar' => ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600'],
+                'gambar' => ['/gambar/banner/4.jpeg'],
                 'harga_dasar' => 20000,
                 'ukuran' => [
                     ['id' => 'size-per-m2', 'name' => 'Per m²', 'dimensions' => 'Harga per meter persegi', 'priceMultiplier' => 1],
@@ -351,7 +351,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'stiker-vinyl',
                 'deskripsi' => 'Stiker vinyl berkualitas tinggi, tahan air dan tahan UV. Cocok untuk label produk outdoor, stiker kendaraan, dan branding.',
                 'deskripsi_singkat' => 'Stiker tahan air & UV',
-                'gambar' => ['https://images.unsplash.com/photo-1633158829585-23ba8f7c8caf?w=600'],
+                'gambar' => ['/gambar/stiker/1.jpeg'],
                 'harga_dasar' => 500,
                 'ukuran' => [
                     ['id' => 'size-a5', 'name' => 'A5', 'dimensions' => '148 x 210 mm', 'priceMultiplier' => 1],
@@ -395,7 +395,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'undangan-pernikahan-eksklusif',
                 'deskripsi' => 'Undangan pernikahan eksklusif dengan kertas premium dan finishing mewah. Tersedia berbagai pilihan desain romantis dan elegan.',
                 'deskripsi_singkat' => 'Undangan pernikahan premium',
-                'gambar' => ['https://images.unsplash.com/photo-1607190074257-dd4b7af0309f?w=600'],
+                'gambar' => ['/gambar/undangan/1.jpeg'],
                 'harga_dasar' => 3000,
                 'ukuran' => [
                     ['id' => 'size-single', 'name' => 'Single Card', 'dimensions' => '15 x 10 cm', 'priceMultiplier' => 1],
@@ -440,7 +440,7 @@ class ProductSeeder extends Seeder
                 'slug' => 'kalender-meja-custom',
                 'deskripsi' => 'Kalender meja custom dengan desain sendiri. 13 lembar (cover + 12 bulan). Cocok untuk hadiah perusahaan dan promosi brand.',
                 'deskripsi_singkat' => 'Kalender meja 13 lembar custom',
-                'gambar' => ['https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=600'],
+                'gambar' => ['/gambar/kalender/1.jpeg'],
                 'harga_dasar' => 10000,
                 'ukuran' => [
                     ['id' => 'size-a5', 'name' => 'A5', 'dimensions' => '148 x 210 mm', 'priceMultiplier' => 1],
