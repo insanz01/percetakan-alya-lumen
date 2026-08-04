@@ -162,6 +162,23 @@ class AuthController extends Controller
     }
 
     /**
+     * Reset password (no email verification, per product decision)
+     */
+    public function resetPassword(Request $request)
+    {
+        $this->validate($request, [
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = User::where('email', $request->input('email'))->first();
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+
+        return $this->successResponse(null, 'Password berhasil direset');
+    }
+
+    /**
      * Logout (just for API consistency, actual logout handled on client)
      */
     public function logout()

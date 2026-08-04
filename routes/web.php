@@ -43,6 +43,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->post('/auth/register', 'AuthController@register');
     $router->post('/auth/login', 'AuthController@login');
     $router->post('/auth/admin/login', 'AuthController@adminLogin');
+    $router->post('/auth/reset-password', 'AuthController@resetPassword');
 
     // Categories (Public)
     $router->get('/categories', 'CategoryController@index');
