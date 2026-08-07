@@ -53,3 +53,8 @@ composer.phar
 !.env.bak
 *.swp
 *~
+
+# ruflo / claude-flow tooling artifacts
+.claude-flow/
+ruvector.db
+*.rvf
