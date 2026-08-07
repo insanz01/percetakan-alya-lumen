@@ -13,6 +13,10 @@ class ContactMessageSeeder extends Seeder
      */
     public function run(): void
     {
+        if (ContactMessage::exists()) {
+            echo "Contact messages already seeded, skipping.\n";
+            return;
+        }
         $messages = [
             [
                 'nama' => 'Andi Pratama',

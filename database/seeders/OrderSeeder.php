@@ -18,6 +18,10 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
+        if (Order::exists()) {
+            echo "Orders already seeded, skipping.\n";
+            return;
+        }
         $customers = User::where('peran', 'customer')->get();
         $products = Product::all();
 

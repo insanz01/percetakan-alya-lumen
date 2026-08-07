@@ -14,6 +14,10 @@ class NewsletterSeeder extends Seeder
      */
     public function run(): void
     {
+        if (NewsletterSubscriber::exists()) {
+            echo "Newsletter subscribers already seeded, skipping.\n";
+            return;
+        }
         $subscribers = [
             [
                 'email' => 'john.doe@gmail.com',

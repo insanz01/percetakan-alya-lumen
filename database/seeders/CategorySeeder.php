@@ -12,6 +12,10 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
+        if (Category::exists()) {
+            echo "Categories already seeded, skipping.\n";
+            return;
+        }
         $categories = [
             [
                 'nama' => 'Brosur & Flyer',

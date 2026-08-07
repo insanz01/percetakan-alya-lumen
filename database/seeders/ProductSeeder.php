@@ -13,6 +13,10 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
+        if (Product::exists()) {
+            echo "Products already seeded, skipping.\n";
+            return;
+        }
         // Get categories
         $brosur = Category::where('slug', 'brosur-flyer')->first();
         $kartuNama = Category::where('slug', 'kartu-nama')->first();

@@ -13,6 +13,10 @@ class PromoSeeder extends Seeder
      */
     public function run(): void
     {
+        if (Promo::exists()) {
+            echo "Promos already seeded, skipping.\n";
+            return;
+        }
         // Welcome discount for new customers
         Promo::create([
             'kode' => 'WELCOME10',
