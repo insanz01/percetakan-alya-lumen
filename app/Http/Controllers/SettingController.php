@@ -31,6 +31,10 @@ class SettingController extends Controller
             $result[$setting->kunci] = Setting::getValue($setting->kunci);
         }
 
+        // Editable site content (hero, features, about, faq, contact, footer)
+        // is public marketing content — expose the whole `content` group.
+        $result = array_merge($result, Setting::getByGroup('content'));
+
         return $this->success($result);
     }
 
