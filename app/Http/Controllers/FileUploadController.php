@@ -79,7 +79,7 @@ class FileUploadController extends Controller
 
         // Create database record
         $uploadedFile = UploadedFile::create([
-            'pengguna_id' => $request->user()->id ?? null,
+            'pengguna_id' => $request->auth->id ?? null,
             'nama_asli' => $file->getClientOriginalName(),
             'nama_disimpan' => $storedName,
             'jalur' => $fullPath,
@@ -162,7 +162,7 @@ class FileUploadController extends Controller
         }
 
         // Check ownership (if user is logged in)
-        $user = $request->user();
+        $user = $request->auth;
         if ($user && $file->pengguna_id && $file->pengguna_id !== $user->id) {
             // Only allow delete own files unless admin
             if ($user->peran !== 'admin' && $user->peran !== 'super_admin') {
