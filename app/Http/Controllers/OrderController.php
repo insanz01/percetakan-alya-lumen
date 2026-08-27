@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Promo;
 use App\Models\ShippingAddress;
+use App\Models\UploadedFile;
 use App\Services\ShippingCalculator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -108,6 +109,7 @@ class OrderController extends Controller
             'metode_pembayaran' => 'required|string',
             'tipe_pembayaran' => 'nullable|string',
             'kode_promo' => 'nullable|string',
+            'bukti_transfer_file_id' => 'nullable|exists:uploaded_files,id',
             'items' => 'required|array|min:1',
             'items.*.produk_id' => 'required|exists:products,id',
             'items.*.jumlah' => 'required|integer|min:1',
@@ -268,6 +270,12 @@ class OrderController extends Controller
             'batas_bayar' => Carbon::now()->addHours(24),
             'catatan' => $request->input('catatan'),
         ]);
+
+        if ($request->filled('bukti_transfer_file_id')) {
+            UploadedFile::where('id', $request->input('bukti_transfer_file_id'))
+                ->where('pengguna_id', $request->auth->id)
+                ->update(['terkait_id' => $order->id, 'terkait_tipe' => 'order']);
+        }
 
         foreach ($itemsData as $data) {
             OrderItem::create(array_merge($data, [
