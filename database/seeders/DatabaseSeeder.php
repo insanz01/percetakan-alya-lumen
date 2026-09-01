@@ -29,6 +29,10 @@ class DatabaseSeeder extends Seeder
         echo "\n3. Seeding products...\n";
         $this->call(ProductSeeder::class);
 
+        // 3b. Seed Product Design Templates
+        echo "\n3b. Seeding product design templates...\n";
+        $this->call(ProductDesignTemplateSeeder::class);
+
         // 4. Seed Promos
         echo "\n4. Seeding promos...\n";
         $this->call(PromoSeeder::class);
