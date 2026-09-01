@@ -56,6 +56,11 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'kategori_id');
     }
 
+    public function designTemplates()
+    {
+        return $this->hasMany(ProductDesignTemplate::class, 'produk_id')->orderBy('urutan');
+    }
+
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class, 'produk_id');

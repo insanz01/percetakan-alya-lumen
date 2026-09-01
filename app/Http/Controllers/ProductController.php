@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -71,7 +72,7 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with('category')->find($id);
+        $product = Product::with(['category', 'designTemplates'])->find($id);
 
         if (!$product) {
             return $this->errorResponse('Produk tidak ditemukan', 404);
@@ -85,7 +86,7 @@ class ProductController extends Controller
      */
     public function showBySlug($slug)
     {
-        $product = Product::with('category')->where('slug', $slug)->first();
+        $product = Product::with(['category', 'designTemplates'])->where('slug', $slug)->first();
 
         if (!$product) {
             return $this->errorResponse('Produk tidak ditemukan', 404);
@@ -118,8 +119,15 @@ class ProductController extends Controller
             'ukuran_file_maks' => 'nullable|integer|min:1',
         ]);
 
+        $slug = Str::slug($request->input('nama'));
+        if (Product::where('slug', $slug)->exists()) {
+            throw ValidationException::withMessages([
+                'nama' => 'Produk dengan nama tersebut sudah ada',
+            ]);
+        }
+
         $data = $request->all();
-        $data['slug'] = Str::slug($request->input('nama'));
+        $data['slug'] = $slug;
         $data['aktif'] = true;
 
         $product = Product::create($data);
@@ -163,7 +171,13 @@ class ProductController extends Controller
         $data = $request->all();
 
         if ($request->has('nama')) {
-            $data['slug'] = Str::slug($request->input('nama'));
+            $slug = Str::slug($request->input('nama'));
+            if (Product::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+                throw ValidationException::withMessages([
+                    'nama' => 'Produk dengan nama tersebut sudah ada',
+                ]);
+            }
+            $data['slug'] = $slug;
         }
 
         $product->update($data);

@@ -129,6 +129,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
         $router->put('/products/{id}', 'ProductController@update');
         $router->delete('/products/{id}', 'ProductController@destroy');
 
+        // Product Design Templates Management
+        $router->post('/products/{id}/design-templates', 'ProductDesignTemplateController@store');
+        $router->delete('/products/{id}/design-templates/{templateId}', 'ProductDesignTemplateController@destroy');
+
         // Orders Management
         $router->get('/orders', 'OrderController@index');
         $router->put('/orders/{id}/status', 'OrderController@updateStatus');
