@@ -63,7 +63,7 @@ class ImageUploadController extends Controller
         $fullPath = $file->storeAs($path, $filename, 'public');
 
         // Generate URL
-        $imageUrl = url('storage/' . $fullPath);
+        $imageUrl = url('uploads/' . $fullPath);
 
         // Update product images array
         $images = $product->gambar ?? [];
@@ -166,7 +166,7 @@ class ImageUploadController extends Controller
         $fullPath = $file->storeAs($path, $filename, 'public');
 
         // Generate URL
-        $imageUrl = url('storage/' . $fullPath);
+        $imageUrl = url('uploads/' . $fullPath);
 
         // Update category
         $category->gambar = $imageUrl;
@@ -232,7 +232,7 @@ class ImageUploadController extends Controller
         $fullPath = $file->storeAs($path, $filename, 'public');
 
         // Generate URL
-        $imageUrl = url('storage/' . $fullPath);
+        $imageUrl = url('uploads/' . $fullPath);
 
         return $this->success([
             'url' => $imageUrl,
@@ -247,12 +247,17 @@ class ImageUploadController extends Controller
      */
     protected function deleteOldImage(string $imageUrl): void
     {
-        // Only delete if it's a local storage file
-        if (strpos($imageUrl, '/storage/') !== false) {
+        // Only delete if it's a local storage file (old /storage/ URLs kept for backward compat)
+        if (strpos($imageUrl, '/uploads/') !== false) {
+            $path = str_replace(url('uploads/'), '', $imageUrl);
+        } elseif (strpos($imageUrl, '/storage/') !== false) {
             $path = str_replace(url('storage/'), '', $imageUrl);
-            if (Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
+        } else {
+            return;
+        }
+
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
         }
     }
 }

@@ -27,11 +27,16 @@ $router->get('/health', function () {
     ]);
 });
 
-// Serve uploaded files directly, so local dev works even when the
-// public/storage symlink didn't materialize (e.g. `git clone` on Windows
-// without Developer Mode checks it out as a plain text file, not a real
-// symlink).
-$router->get('/storage/{path:.*}', function ($path) {
+// Serve uploaded files directly from storage/app/public via PHP, instead of
+// relying on the public/storage symlink. On Windows, `git clone` without
+// Developer Mode checks out a symlink as a plain text file (not a real
+// symlink), and depending on the web server's rewrite config that can also
+// stop the request from ever reaching this router. New uploads use
+// /uploads/{path} - a URL with no matching path in public/ at all - so
+// there's nothing on disk for the web server to (mis)serve as a static
+// file before falling through to Lumen. /storage/{path} is kept for any
+// already-issued URLs using the old scheme.
+$serveUpload = function ($path) {
     $base = storage_path('app/public');
     $filePath = realpath($base . '/' . $path);
 
@@ -39,8 +44,17 @@ $router->get('/storage/{path:.*}', function ($path) {
         abort(404);
     }
 
-    return response()->file($filePath);
-});
+    // response()->file() returns a raw Symfony BinaryFileResponse, which has
+    // no header() method - CorsMiddleware calls $response->header(...) on
+    // every response and would fatal on it. response()->make() returns a
+    // Laravel response that supports it.
+    return response()->make(file_get_contents($filePath), 200, [
+        'Content-Type' => mime_content_type($filePath) ?: 'application/octet-stream',
+    ]);
+};
+
+$router->get('/uploads/{path:.*}', $serveUpload);
+$router->get('/storage/{path:.*}', $serveUpload);
 
 /*
 |--------------------------------------------------------------------------

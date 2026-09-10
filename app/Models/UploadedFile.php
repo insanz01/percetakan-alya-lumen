@@ -49,7 +49,7 @@ class UploadedFile extends Model
     public function getUrlAttribute(): string
     {
         if ($this->penyimpanan === 'public') {
-            return url('storage/' . $this->jalur);
+            return url('uploads/' . $this->jalur);
         }
 
         return url('api/v1/files/' . $this->id);
