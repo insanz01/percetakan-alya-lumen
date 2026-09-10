@@ -27,6 +27,21 @@ $router->get('/health', function () {
     ]);
 });
 
+// Serve uploaded files directly, so local dev works even when the
+// public/storage symlink didn't materialize (e.g. `git clone` on Windows
+// without Developer Mode checks it out as a plain text file, not a real
+// symlink).
+$router->get('/storage/{path:.*}', function ($path) {
+    $base = storage_path('app/public');
+    $filePath = realpath($base . '/' . $path);
+
+    if ($filePath === false || strpos($filePath, realpath($base)) !== 0 || !is_file($filePath)) {
+        abort(404);
+    }
+
+    return response()->file($filePath);
+});
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
