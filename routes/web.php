@@ -27,15 +27,17 @@ $router->get('/health', function () {
     ]);
 });
 
-// Serve uploaded files directly from storage/app/public via PHP, instead of
-// relying on the public/storage symlink. On Windows, `git clone` without
-// Developer Mode checks out a symlink as a plain text file (not a real
-// symlink), and depending on the web server's rewrite config that can also
-// stop the request from ever reaching this router. New uploads use
-// /uploads/{path} - a URL with no matching path in public/ at all - so
-// there's nothing on disk for the web server to (mis)serve as a static
-// file before falling through to Lumen. /storage/{path} is kept for any
-// already-issued URLs using the old scheme.
+// Legacy fallback: uploads now land directly in public/uploads (see the
+// 'public' disk in config/filesystems.php) and are served as plain static
+// files - no PHP involved, works under any web server (incl. `php -S`
+// with no router script) with nothing extra to configure. This route only
+// serves files uploaded before that change, still sitting in
+// storage/app/public, plus any already-issued /storage/{path} URLs from
+// the older public/storage-symlink scheme. Note: under `php -S` with no
+// router script, requests for a recognized static extension (.png, .jpg,
+// ...) never reach this route at all if the file isn't under public/ -
+// that's fine for this fallback, since it only matters on a real web
+// server (Apache/nginx) or `php -S ... server.php`.
 $serveUpload = function ($path) {
     // realpath() is used here to block directory traversal, but on Windows
     // it also silently returns false for paths near MAX_PATH (260 chars) -
