@@ -55,8 +55,11 @@ php artisan db:seed
 
 8. Jalankan development server:
 ```bash
-php -S localhost:8000 -t public
+php -S localhost:8000 -t public server.php
 ```
+> `server.php` wajib disertakan (bukan cuma `-t public`) - tanpa itu, di sebagian
+> setup PHP/Windows, request ke file dengan ekstensi (`/uploads/*.png`, dll) akan
+> 404 langsung dari PHP built-in server dan tidak pernah sampai ke aplikasi.
 
 API akan berjalan di `http://localhost:8000`
 
