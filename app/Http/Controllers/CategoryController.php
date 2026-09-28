@@ -84,9 +84,11 @@ class CategoryController extends Controller
             'urutan' => 'nullable|integer',
         ]);
 
+        $slug = $this->generateUniqueSlug($request->input('nama'));
+
         $category = Category::create([
             'nama' => $request->input('nama'),
-            'slug' => Str::slug($request->input('nama')),
+            'slug' => $slug,
             'deskripsi' => $request->input('deskripsi'),
             'ikon' => $request->input('ikon'),
             'gambar' => $request->input('gambar'),
@@ -120,7 +122,7 @@ class CategoryController extends Controller
         $data = $request->only(['nama', 'deskripsi', 'ikon', 'gambar', 'urutan', 'aktif']);
 
         if ($request->has('nama')) {
-            $data['slug'] = Str::slug($request->input('nama'));
+            $data['slug'] = $this->generateUniqueSlug($request->input('nama'), $id);
         }
 
         $category->update($data);
@@ -147,5 +149,20 @@ class CategoryController extends Controller
         $category->delete();
 
         return $this->successResponse(null, 'Kategori berhasil dihapus');
+    }
+
+    /**
+     * Generate a slug, appending a random postfix if it already exists.
+     */
+    private function generateUniqueSlug(string $nama, $excludeId = null): string
+    {
+        $base = Str::slug($nama);
+        $slug = $base;
+
+        while (Category::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
+            $slug = $base . '-' . Str::lower(Str::random(8));
+        }
+
+        return $slug;
     }
 }

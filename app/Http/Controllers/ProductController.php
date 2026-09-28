@@ -7,7 +7,6 @@ use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -119,15 +118,8 @@ class ProductController extends Controller
             'ukuran_file_maks' => 'nullable|integer|min:1',
         ]);
 
-        $slug = Str::slug($request->input('nama'));
-        if (Product::where('slug', $slug)->exists()) {
-            throw ValidationException::withMessages([
-                'nama' => 'Produk dengan nama tersebut sudah ada',
-            ]);
-        }
-
         $data = $request->all();
-        $data['slug'] = $slug;
+        $data['slug'] = $this->generateUniqueSlug(Product::class, $request->input('nama'));
         $data['aktif'] = true;
 
         $product = Product::create($data);
@@ -171,13 +163,7 @@ class ProductController extends Controller
         $data = $request->all();
 
         if ($request->has('nama')) {
-            $slug = Str::slug($request->input('nama'));
-            if (Product::where('slug', $slug)->where('id', '!=', $id)->exists()) {
-                throw ValidationException::withMessages([
-                    'nama' => 'Produk dengan nama tersebut sudah ada',
-                ]);
-            }
-            $data['slug'] = $slug;
+            $data['slug'] = $this->generateUniqueSlug(Product::class, $request->input('nama'), $id);
         }
 
         $product->update($data);
@@ -306,5 +292,20 @@ class ProductController extends Controller
             ->values();
 
         return $this->successResponse($products);
+    }
+
+    /**
+     * Generate a slug, appending a random postfix if it already exists.
+     */
+    private function generateUniqueSlug(string $model, string $nama, $excludeId = null): string
+    {
+        $base = Str::slug($nama);
+        $slug = $base;
+
+        while ($model::where('slug', $slug)->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))->exists()) {
+            $slug = $base . '-' . Str::lower(Str::random(8));
+        }
+
+        return $slug;
     }
 }
