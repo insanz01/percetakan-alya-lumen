@@ -37,10 +37,20 @@ $router->get('/health', function () {
 // file before falling through to Lumen. /storage/{path} is kept for any
 // already-issued URLs using the old scheme.
 $serveUpload = function ($path) {
-    $base = storage_path('app/public');
-    $filePath = realpath($base . '/' . $path);
+    // realpath() is used here to block directory traversal, but on Windows
+    // it also silently returns false for paths near MAX_PATH (260 chars) -
+    // easy to hit with storage/app/public/categories/2026/09/<uuid>.ext
+    // nested inside a deep project folder - even when the file exists.
+    // Block traversal by segment instead, so a genuinely-present file is
+    // never mistaken for a missing one just because the path is long.
+    if (in_array('..', explode('/', $path), true)) {
+        abort(404);
+    }
 
-    if ($filePath === false || strpos($filePath, realpath($base)) !== 0 || !is_file($filePath)) {
+    $base = storage_path('app/public');
+    $filePath = $base . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $path);
+
+    if (!is_file($filePath)) {
         abort(404);
     }
 
